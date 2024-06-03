@@ -30,6 +30,6 @@ Income in the Past 12 Months (In 2019 Inflation-Adjusted Dollars)
 
 2. Search up "(table id) for (state) in (year)". For example, "S0101 for Kentucky in 2019"
 
-3. Choose the ACS 5-Year Estimates Data Profiles for the table id you have chosen. Click on Geos and you have more optionality for geographic selection. In our case, we chose all of the counties tracked in Kentucky.
+3. Choose the ACS 5-Year Estimates Data Profiles for the table id you have chosen. Click on Geos and you have more optionality for geographic selection. In our case, we chose all of the Census Tracts for Fayette County of Kentucky.
 
-4. Download as CSV
+4. Download the 5-Year Estimates for your year. Then unzip.
