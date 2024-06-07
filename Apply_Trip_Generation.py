@@ -44,17 +44,12 @@ def apply_trip_generation(merged_data, weekdays_csv):
     NT['PRED_AVG_WD_PICKUPS'] = np.exp(0.0188928*NT['AIR_F'] + 0.830838*NT['TOR_F'] + 0.3445732*NT['LINEAR_PICKUPS_LOG'] + 0.9817033*NT['LOGSUM'] - 0.0215845*NT['MEDIAN_AGE'] + 0.0199614*PM['P_BACH_25P']+ 0.00000224*ON['TOTAL_EMP_DEN'] - 0.148494*NT['OCT_19'] - 5.265743)
 
     # append all of the tod specific dataframes together
-    pred_trips = ON.append(AM)
-    pred_trips = ON.append(MD)
-    pred_trips = ON.append(PM)
-    pred_trips = ON.append(NT)
+    pred_trips = pd.concat([ON, AM, MD, PM, NT])
 
     # convert average weekday trips to monthly trip totals
     wd = pd.read_csv(weekdays_csv)
-    pred_trips = pred_trips.merge(wd, on = ['MONTH','YEAR'])
+    pred_trips = pred_trips.merge(wd, on = ['MONTH', 'YEAR'])
     
     return pred_trips
 
-apply_trip_generation(merged.csv, weekdays.csv)
-print(pred_trips)
     
