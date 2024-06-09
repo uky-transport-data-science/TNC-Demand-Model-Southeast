@@ -5,27 +5,27 @@ import pandas as pd
 def apply_trip_generation(merged_data, weekdays_csv):
     
     ## read in the file
-    ON = pd.read_csv(merged_data, index_col = 0)
-    AM = pd.read_csv(merged_data, index_col = 0)
-    MD = pd.read_csv(merged_data, index_col = 0)
-    PM = pd.read_csv(merged_data, index_col = 0)
-    NT = pd.read_csv(merged_data, index_col = 0)
+    ON = pd.read_csv(merged_data, index_col = 0) #TOD1
+    AM = pd.read_csv(merged_data, index_col = 0) #TOD2
+    MD = pd.read_csv(merged_data, index_col = 0) #TOD3
+    PM = pd.read_csv(merged_data, index_col = 0) #TOD4
+    NT = pd.read_csv(merged_data, index_col = 0) #TOD5
 
 
     ## apply linear models
-    ON['LINEAR_PICKUPS'] = 0.1251485*ON['FOOD_EMP'] + 260.4035*1 + 0.0055992*ON['LOW_INC_0'] + 0.1456829*ON['HI_INC_0'] + 0.0206288*ON['LOW_INC_1P'] 
+    ON['LINEAR_PICKUPS'] = 0.1251485*ON['FOOD_EMP'] + 260.4035*ON['AIR_F'] + 0.0055992*ON['LOW_INC_0'] + 0.1456829*ON['HI_INC_0'] + 0.0206288*ON['LOW_INC_1P'] 
     ON['LINEAR_PICKUPS_LOG'] =  np.where(ON['LINEAR_PICKUPS'] == 0, 0, np.log(ON['LINEAR_PICKUPS']))
 
-    AM['LINEAR_PICKUPS'] = 0.0000952*AM['OTHER_EMP'] + 0.0473473*AM['FOOD_EMP'] + 0.015827*AM['RETAIL_EMP'] + 130.2076*1 + 53.18332*0 + 0.3745288*AM['HI_INC_0'] + 0.0174729*AM['LOW_INC_0'] + 0.0176063*AM['LOW_INC_1P'] + 0.0000136*AM['HI_INC_1P'] 
+    AM['LINEAR_PICKUPS'] = 0.0000952*AM['OTHER_EMP'] + 0.0473473*AM['FOOD_EMP'] + 0.015827*AM['RETAIL_EMP'] + 130.2076*AM['AIR_F'] + 53.18332*AM['TOR_F'] + 0.3745288*AM['HI_INC_0'] + 0.0174729*AM['LOW_INC_0'] + 0.0176063*AM['LOW_INC_1P'] + 0.0000136*AM['HI_INC_1P'] 
     AM['LINEAR_PICKUPS_LOG'] =  np.where(AM['LINEAR_PICKUPS'] == 0, 0, np.log(AM['LINEAR_PICKUPS']))
 
-    MD['LINEAR_PICKUPS'] = 0.1485942*MD['FOOD_EMP'] + 0.0653171*MD['RETAIL_EMP'] + 0.0075034*MD['OTHER_EMP'] + 921.3699*1 + 173.4502*0 + 0.6336939*MD['HI_INC_0'] + 0.0275177*MD['LOW_INC_0'] + 0.0235304*MD['LOW_INC_1P'] + 0.0000243*MD['HI_INC_1P'] 
+    MD['LINEAR_PICKUPS'] = 0.1485942*MD['FOOD_EMP'] + 0.0653171*MD['RETAIL_EMP'] + 0.0075034*MD['OTHER_EMP'] + 921.3699*MD['AIR_F'] + 173.4502*MD['TOR_F'] + 0.6336939*MD['HI_INC_0'] + 0.0275177*MD['LOW_INC_0'] + 0.0235304*MD['LOW_INC_1P'] + 0.0000243*MD['HI_INC_1P'] 
     MD['LINEAR_PICKUPS_LOG'] =  np.where(MD['LINEAR_PICKUPS'] == 0, 0, np.log(MD['LINEAR_PICKUPS']))
 
-    PM['LINEAR_PICKUPS'] = 0.1094589*PM['FOOD_EMP'] + 0.0385694*PM['RETAIL_EMP'] + 0.0079508*PM['OTHER_EMP'] + 213.2107*1 + 102.1033*0 + 0.4440004*PM['HI_INC_0'] + 0.0060732*PM['LOW_INC_0'] + 0.0072242*PM['LOW_INC_1P'] + 0.0000164*PM['HI_INC_1P'] 
+    PM['LINEAR_PICKUPS'] = 0.1094589*PM['FOOD_EMP'] + 0.0385694*PM['RETAIL_EMP'] + 0.0079508*PM['OTHER_EMP'] + 213.2107*PM['AIR_F'] + 102.1033*PM['TOR_F'] + 0.4440004*PM['HI_INC_0'] + 0.0060732*PM['LOW_INC_0'] + 0.0072242*PM['LOW_INC_1P'] + 0.0000164*PM['HI_INC_1P'] 
     PM['LINEAR_PICKUPS_LOG'] = np.where(PM['LINEAR_PICKUPS'] == 0, 0, np.log(PM['LINEAR_PICKUPS']))
 
-    NT['LINEAR_PICKUPS'] = 0.002725*NT['OTHER_EMP'] + 0.1846295*NT['FOOD_EMP'] + 476.2219*1 + 0.350088*NT['HI_INC_0'] + 0.00000446*NT['HI_INC_1P'] + 0.0070386*NT['LOW_INC_0'] + 0.0076753*NT['LOW_INC_1P']
+    NT['LINEAR_PICKUPS'] = 0.002725*NT['OTHER_EMP'] + 0.1846295*NT['FOOD_EMP'] + 476.2219*NT['AIR_F'] + 0.350088*NT['HI_INC_0'] + 0.00000446*NT['HI_INC_1P'] + 0.0070386*NT['LOW_INC_0'] + 0.0076753*NT['LOW_INC_1P']
     NT['LINEAR_PICKUPS_LOG'] =  np.where(NT['LINEAR_PICKUPS'] == 0, 0, np.log(NT['LINEAR_PICKUPS']))
 
 
