@@ -9,8 +9,8 @@ weekdays_csv = 'E:/CR2/Repos/TNC-Demand-Model-Southeast/Cleaned_Inputs/Intermedi
 
 #STEP 1: TRIP GENERATION APPLICATION
 print('Working on Trip Generation Step')
-pred_trips = apply_trip_generation(merged_data, weekdays_csv)
-
+pred_trips = apply_trip_generation(merged_data)
+pred_trips.to_csv('E:/CR2/Repos/TNC-Demand-Model-Southeast/Cleaned_Inputs/Intermediate/pred_trips.csv')
 
 
 
