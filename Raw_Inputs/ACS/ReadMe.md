@@ -24,6 +24,9 @@ Educational Attainment
 # S1901 #
 Income in the Past 12 Months (In 2019 Inflation-Adjusted Dollars)
 
+# A112306 #
+Vehicles X Income per household (special tabulation available from Census Transportation Planning Package. To download, you need to create an account)
+
 
 ## To download for your state ##
 1. Go to https://data.census.gov/
@@ -33,3 +36,7 @@ Income in the Past 12 Months (In 2019 Inflation-Adjusted Dollars)
 3. Choose the ACS 5-Year Estimates Data Profiles for the table id you have chosen. Click on Geos and you have more optionality for geographic selection. In our case, we chose all of the Census Tracts for Fayette County of Kentucky.
 
 4. Download the 5-Year Estimates for your year. Then unzip.
+
+
+
+For our use, we only needed the DP05, S1501, and A112306 for Apply_Trip_Generation.py
