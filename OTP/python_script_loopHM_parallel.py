@@ -13,9 +13,9 @@ time_threshold = 36000  # set a limit to maximum travel time (seconds) 10 hours.
 # set date of trips... picked 2/6/19 (Wednesday) because the metra transit file has a few lines that do not begin service until 2/4/19.
 ## dates for quarters... 12/5/18, 2/6/19, 6/5/19, 9/4/19, 12/4/19, 2/5/20 
 year = 2019
-month = 10
+month = 06
 day = 05
-mydate = 20191005
+mydate = 20190605
 
 #MAKE SURE YOU CHANGE THE OUTPUT FILE TO WHERE YOU WANT IT TO GO. THE DRIVE OR FOLDERS MAY BE DIFFERENT
 
@@ -95,7 +95,7 @@ def do_the_stuff(h,m):
       matrixCsv.addRow([ mydate, str(h) + ":" + str(m) + ":00", origin.getStringData('GEOID'), r.getIndividual().getStringData('GEOID'), r.getWalkDistance() , r.getTime()])
 
 	# Save the result
-  matrixCsv.save('E:/CR2/Repos/TNC-Demand-Model-Southeast/OTP/Car Travel Times' + str(mydate) + '/traveltime_matrix_'+ str(h)+"-"+str(m) + '.csv')
+  matrixCsv.save('E:/CR2/Repos/TNC-Demand-Model-Southeast/OTP/Car Travel Times/20190605/traveltime_matrix_/traveltime.csv')
 
 
 # ^ that ^ function has to be defined before it's called
