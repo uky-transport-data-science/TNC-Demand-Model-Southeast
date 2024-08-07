@@ -1,17 +1,19 @@
-Steps to calculate the transit travel times:
+Steps to calculate the car travel times:
 
 1. Create pbf file using open trip planner (https://github.com/opentripplanner/OpenTripPlanner) (http://docs.opentripplanner.org/en/dev-2.x/Basic-Tutorial/)
 	https://download.geofabrik.de/north-america/us/illinois.html		http://docs.opentripplanner.org/en/latest/Preparing-OSM/#cropping-osm-data
 2. Create graph using open trip planner (https://github.com/rafapereirabr/otp-travel-time-matrix)
 3. Run the Create Census Tract Centriod jupyter notebook to create origins/destinations
-4. Calculate transit travel times with python_script_loopHM_parallel.py script (https://github.com/rafapereirabr/otp-travel-time-matrix)
+4. Calculate car travel times with python_script_loopHM_parallel.py script (https://github.com/rafapereirabr/otp-travel-time-matrix)
+
+(change travel mode to your preferred choice, for us we chose Car Travel)
 
 After input files have been downloaded and placed according to the links above and 
 a folder named as your city (ex. Kentucky) has been made... run the following notebooks and 
 commands in the command prompt (must be command prompt... not power shell)
 
 Adding the OSM files was not straightforward:
-Download illinois statewide pbf file from - https://download.geofabrik.de/
+Downloa Kentucky statewide pbf file from - https://download.geofabrik.de/
 Download osmosis from - https://github.com/openstreetmap/osmosis/releases/tag/0.48.3
 Add osmosis/bin to PATH variable
 Run the following command where the pbf file is to filter the file to only kentucky - 
@@ -22,7 +24,9 @@ Run the following command where the pbf file is to filter the file to only kentu
 
 1. java -Xmx10G -jar otp-1.4.0-shaded.jar --cache D:\TNC-Demand-Model\otp --basePath D:\TNC-Demand-Model\otp --build D:\TNC-Demand-Model\otp
 1.1 add --inMemory to the end to create an interative graph (map)... open it with http://localhost:8080/
-2. Run the following jupyter notebook: C:\Workspace\TNC-Demand-Model\Create Census Tract Centroids.pynb
+
+2. Run the following jupyter notebook: E:\CR2\Repos\TNC-Demand-Model-Southeast\OTP\centroid_points.csv
+
 3. C:\jython2.7.3\bin\bin\jython.exe -J-XX:-UseGCOverheadLimit -J-Xmx10G -Dpython.path=E:/CR2/Repos/TNC-Demand-Model-Southeast/OTP/otp-1.4.0-shaded.jar E:/CR2/Repos/TNC-Demand-Model-Southeast/OTP/python_script_loopHM_parallel.py (adjust to your paths)
 
 Make a folder named Graphs to contain the graphs for each of the GTFS combinations. There 

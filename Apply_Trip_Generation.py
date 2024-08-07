@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-## for October of 2019
+## 2019
 def apply_trip_generation(merged_data):
     
     ## read in the file

@@ -7,7 +7,7 @@ max_threads = 6
 # Trips
 fromm = 0              # set first departure time
 until = 24              # set last time
-every = 720             # set frequency (every 10 minutes)
+every = 1440             # set frequency (once a day)
 time_threshold = 36000  # set a limit to maximum travel time (seconds) 10 hours... to include all census tracts
 
 # set date of trips... picked 2/6/19 (Wednesday) because the metra transit file has a few lines that do not begin service until 2/4/19.
@@ -49,8 +49,8 @@ router = otp.getRouter('kentucky')
 
 
 # Read Points of Destination - The file centroid_points.csv contains the columns GEOID, X and Y.
-points = otp.loadCSVPopulation('E:/CR2/Repos/TNC-Demand-Model-Southeast/OTP/centroid_points.csv', 'Y', 'X')
-dests = otp.loadCSVPopulation('E:/CR2/Repos/TNC-Demand-Model-Southeast/OTP/centroid_points.csv', 'Y', 'X')
+points = otp.loadCSVPopulation('E:/CR2/Repos/TNC-Demand-Model-Southeast/Cleaned_Inputs/Intermediate/centroid_points.csv', 'Y', 'X')
+dests = otp.loadCSVPopulation('E:/CR2/Repos/TNC-Demand-Model-Southeast/Cleaned_Inputs/Intermediate/centroid_points.csv', 'Y', 'X')
 
 
 ### make a list of jobs to do
@@ -65,8 +65,8 @@ for h in range(fromm, until):
 def do_the_stuff(h,m):
 
   # Read Points of Destination - The file centroid_points.csv contains the columns GEOID, X and Y [inside]
-  points = otp.loadCSVPopulation('E:/CR2/Repos/TNC-Demand-Model-Southeast/OTP/centroid_points.csv', 'Y', 'X')
-  dests = otp.loadCSVPopulation('E:/CR2/Repos/TNC-Demand-Model-Southeast/OTP/centroid_points.csv', 'Y', 'X')
+  points = otp.loadCSVPopulation('E:/CR2/Repos/TNC-Demand-Model-Southeast/Cleaned_Inputs/Intermediate/centroid_points.csv', 'Y', 'X')
+  dests = otp.loadCSVPopulation('E:/CR2/Repos/TNC-Demand-Model-Southeast/Cleaned_Inputs/Intermediate/centroid_points.csv', 'Y', 'X')
 
 	# Create a default request for a given time
   req = otp.createRequest()
