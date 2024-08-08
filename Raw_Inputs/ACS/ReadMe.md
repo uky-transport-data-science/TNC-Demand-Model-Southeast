@@ -24,6 +24,9 @@ Educational Attainment
 # S1901 #
 Income in the Past 12 Months (In 2019 Inflation-Adjusted Dollars)
 
+# S1903 #
+Median Income per Household 
+
 # A112306 #
 Vehicles X Income per household (special tabulation available from Census Transportation Planning Package. To download, you need to create an account)
 
@@ -39,4 +42,4 @@ Vehicles X Income per household (special tabulation available from Census Transp
 
 
 
-For our use, we only needed the DP05, S1501, and A112306 for Apply_Trip_Generation.py
+We only needed the DP05, S1501, and A112306 for Apply_Trip_Generation.py
