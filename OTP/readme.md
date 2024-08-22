@@ -1,3 +1,4 @@
+RS 7-24-2024
 Steps to calculate the car travel times:
 
 1. Create pbf file using open trip planner (https://github.com/opentripplanner/OpenTripPlanner) (http://docs.opentripplanner.org/en/dev-2.x/Basic-Tutorial/)
@@ -29,7 +30,5 @@ Run the following command where the pbf file is to filter the file to only kentu
 
 3. C:\jython2.7.3\bin\bin\jython.exe -J-XX:-UseGCOverheadLimit -J-Xmx10G -Dpython.path=E:/CR2/Repos/TNC-Demand-Model-Southeast/OTP/otp-1.4.0-shaded.jar E:/CR2/Repos/TNC-Demand-Model-Southeast/OTP/python_script_loopHM_parallel.py (adjust to your paths)
 
-Make a folder named Graphs to contain the graphs for each of the GTFS combinations. There 
-are 6 in total.
 
 This helped me too: https://access.readthedocs.io/en/latest/resources.html

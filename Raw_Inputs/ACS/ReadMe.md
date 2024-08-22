@@ -42,4 +42,5 @@ Vehicles X Income per household (special tabulation available from Census Transp
 
 
 
-We only needed the DP05, S1501, and A112306 for Apply_Trip_Generation.py
+	- We needed the DP05, S1501, and A112306 for Apply_Trip_Generation.py
+	- We needed the S1903 for travel time utility/fares
