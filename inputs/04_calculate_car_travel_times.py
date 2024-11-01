@@ -10,7 +10,7 @@ import requests
 import fiona
 import geopandas as gpd
 
-# Set working directory
+# Set working directory (make dynamic later)
 os.chdir('/mnt/e/CR2/Repos/TNC-Demand-Model-Southeast/inputs/')
 
 # Read data
