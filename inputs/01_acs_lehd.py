@@ -11,7 +11,7 @@ import fiona
 import geopandas as gpd
 
 # Set working directory
-os.chdir('/home/tncse/inputs/')
+os.chdir('/mnt/e/CR2/Repos/TNC-Demand-Model-Southeast/inputs/')
 
 # Activate Census Key
 c = Census("4049ee84e96e784c0042da45d81f95514d53b7fd")

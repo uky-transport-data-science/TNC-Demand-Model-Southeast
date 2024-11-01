@@ -81,4 +81,3 @@ def create_centroids(study_state = "KY"):
     centroid_combos = pd.DataFrame(combos_list, columns=['geoid_origin', 'origin_x', 'origin_y', 'geoid_dest', 'dest_x', 'dest_y'])
     centroid_combos.to_csv(os.getcwd() + "/centroid_points.csv", index = False)
     print("All finished, centroids output via CSV. Move on to creating graphs and creating travel times...")
-
