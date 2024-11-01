@@ -10,9 +10,10 @@ import requests
 import fiona
 import geopandas as gpd
 from shapely import wkt
+import itertools
 
 # Set working directory
-os.chdir('E:/CR2/Repos/TNC-Demand-Model-Southeast/inputs')
+os.chdir('/mnt/e/CR2/Repos/TNC-Demand-Model-Southeast/inputs/')
 
 # FIPS Codes for States
 AL = '01'
@@ -44,7 +45,8 @@ def create_centroids(study_state = "KY"):
     centroid_load = []
     for i in states_list:
         url = 'https://www2.census.gov/geo/tiger/TIGER2020/TRACT/tl_2020_' + i + '_tract.zip'
-        df = gpd.read_file(url)[['GEOID', 'STATEFP', 'geometry']]
+        df = gpd.read_file(url)
+        df = df[['GEOID', 'STATEFP', 'geometry']]
         centroid_load.append(df)
 
     centroid_load = pd.concat(centroid_load)
@@ -70,5 +72,13 @@ def create_centroids(study_state = "KY"):
     centroid[["x", "y"]] = centroid[["x", "y"]].astype(float)
     ## Keep relevant columns
     centroid = centroid.drop(columns = ["statefp", "geometry", "fips_code", "centroid"])
-    centroid.to_csv("E:/CR2/Repos/TNC-Demand-Model-Southeast/inputs/otp/centroid_points.csv", index = False)
+    origins = centroid[['geoid', 'x', 'y']].values.tolist()
+    destinations = centroid[['geoid', 'x', 'y']].values.tolist()
+    combinations = list(itertools.product(origins, destinations))
+    combos_list = []
+    for i in range(0, len(combinations)-1):
+        combos_list.append(list(itertools.chain(*combinations[i])))
+    centroid_combos = pd.DataFrame(combos_list, columns=['geoid_origin', 'origin_x', 'origin_y', 'geoid_dest', 'dest_x', 'dest_y'])
+    centroid_combos.to_csv(os.getcwd() + "/centroid_points.csv", index = False)
     print("All finished, centroids output via CSV. Move on to creating graphs and creating travel times...")
+

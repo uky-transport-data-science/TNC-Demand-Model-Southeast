@@ -11,7 +11,7 @@ import fiona
 import geopandas as gpd
 
 # Set working directory
-os.chdir('E:/CR2/Repos/TNC-Demand-Model-Southeast/inputs')
+os.chdir('/home/tncse/inputs/')
 
 # Activate Census Key
 c = Census("4049ee84e96e784c0042da45d81f95514d53b7fd")
@@ -118,7 +118,7 @@ def get_acs_lehd(study_state = "KY"):
     # Get number of vehicles by household income
     print("Getting vehicles by household income...")
     ## Load data (MAKE ARGUMENT FOR STATE)
-    veh_hh_inc_load = pd.read_csv('A112306/A112306_KY.csv')
+    veh_hh_inc_load = pd.read_csv(os.getcwd() + '/A112306/A112306_KY.csv')
     veh_hh_inc_load.head()
     ## Clean data
     ### Set first row as column names
@@ -266,3 +266,4 @@ def get_acs_lehd(study_state = "KY"):
     acs_lehd['airport'] = np.where(acs_lehd.geoid.isin([airport_list]), 1, 0)
     print("Cleaning acs_lehd combined dataframe...")
     return acs_lehd
+
