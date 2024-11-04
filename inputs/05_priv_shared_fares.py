@@ -24,4 +24,6 @@ trips.loc[:, 'private_fares'] = 1.9035 + (0.2892 * trips['private_travel_time'])
 ## Shared Trip Fare = 2.6496 + (0.06)(travel time in minutes) + (0.7349)(distance in miles)
 trips.loc[:, 'shared_fares'] = 2.6496 + (0.06 * trips['shared_travel_time']) + (0.7349 * trips['travel_distance'])
 
-# 
+# Write out to CSV
+fares = trips
+fares.to_csv('../outputs/fares_and_times.csv')

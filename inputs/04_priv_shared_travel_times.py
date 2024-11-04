@@ -15,7 +15,7 @@ os.chdir('/mnt/e/CR2/Repos/TNC-Demand-Model-Southeast/inputs/')
 
 # Read data
 travel_time_distance = pd.read_csv("../outputs/travel_time_distance.csv")
-
+travel_time_distance = travel_time_distance[travel_time_distance['geoid_origin'] != travel_time_distance['geoid_dest']]
 # Private travel time is same as travel time
 travel_time_distance[["private_travel_time"]] = travel_time_distance[["travel_time"]]
 

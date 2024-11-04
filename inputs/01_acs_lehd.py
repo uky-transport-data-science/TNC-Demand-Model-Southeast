@@ -222,8 +222,6 @@ def get_acs_lehd(study_state = "KY"):
     wac_geo_grouped = wac_geo_grouped.drop(columns=['geoid'])
     wac_geo_grouped = wac_geo_grouped.rename(columns={"trct": "geoid"})
 
-
-
     ## Load Land Area Data from TIGER Line Census Files
     print("Getting land area data from TIGER line files...")
     land_area_load = []
@@ -262,7 +260,7 @@ def get_acs_lehd(study_state = "KY"):
     acs_lehd['tourist'] = 0
 
     # Flag for Airport (TO DO Find airports)
-    airport_list = [21067004207] 
+    airport_list = [21067004207, 21015980100, 21111980100]
     acs_lehd['airport'] = np.where(acs_lehd.geoid.isin([airport_list]), 1, 0)
     print("Cleaning acs_lehd combined dataframe...")
     return acs_lehd
