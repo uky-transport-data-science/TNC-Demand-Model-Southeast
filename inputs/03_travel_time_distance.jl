@@ -31,18 +31,7 @@ for i in 1:nrow(od_table)
     [LatLon(od_table.dest_y[i],  od_table.dest_x[i])]).duration_seconds[1, 1]
 end
 
-od_table[!, :travel_distance] = travel_distance
-od_table[!, :travel_time] = travel_time
+od_table[!, :travel_distance] = travel_distance / 1609.34
+od_table[!, :travel_time] = travel_time / 60
 
-
-
-# LatLon(sub_df.origin_y[1], sub_df.origin_x[1])
-# first(result).distance_meters
-# first(result).duration_seconds
-
-# result2
-# result2.distance_meters
-# result2.duration_seconds
-# sub_df[!, "distance_meters"] .= result2.distance_meters[1, 1]
-
-# result2.distance_meters[1, 1]
+CSV.write("/mnt/e/CR2/Repos/TNC-Demand-Model-Southeast/outputs/travel_time_distance.csv", od_table)
