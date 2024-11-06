@@ -1,18 +1,18 @@
 #### Calculate Mode Choice Utility and Logsums
+# Set working directory (make dynamic later)
+import os
+os.chdir('/mnt/e/CR2/Repos/TNC-Demand-Model-Southeast/inputs/')
+
 # Import Libraries
 import numpy as np
 import pandas as pd
 import census
 from census import Census
-import os
 import io
 import requests
 import fiona
 import geopandas as gpd
 priv_shared_fares = __import__('05_priv_shared_fares')
-
-# Set working directory (make dynamic later)
-os.chdir('/mnt/e/CR2/Repos/TNC-Demand-Model-Southeast/inputs/')
 
 # Activate Census Key
 c = Census("4049ee84e96e784c0042da45d81f95514d53b7fd")
@@ -63,9 +63,8 @@ def get_median_income():
 
 def mode_choice_utility_logsums():
     # Read in data
-    # utility = pd.read_csv('../outputs/fares_and_times.csv')
-    utility = priv_shared_fares.priv_shared_fares()
-
+    utility = pd.read_csv('../outputs/fares_and_times.csv')
+    #utility = priv_shared_fares.priv_shared_fares()
     # Create indicator to see if an airport is in the origin or destination.
     ## These are the airports in Kentucky.
     airport_census_tracts = [21067004207, 21015980100, 21111980100] 
@@ -110,5 +109,6 @@ def mode_choice_utility_logsums():
     utility['mode_logsum_no_airport'] = np.where(utility['airport'] == 0, utility['mode_logsum'], 0)
 
     ### Write to CSV
+    print("Writing to CSV...")
+    utility.to_csv('../outputs/mode_choice_utility_logsums.csv', index = False)
     return utility
-    #utility.to_csv('../outputs/mode_choice_utility_output.csv', index = False)

@@ -1,18 +1,18 @@
 #### Linear Trip Generation (Pickups by Time of Day)
+#  Set working directory (make dynamic later)
+import os
+os.chdir('/mnt/e/CR2/Repos/TNC-Demand-Model-Southeast/inputs/')
+
 # Import Libraries
 import numpy as np
 import pandas as pd
 import census
 from census import Census
-import os
 import io
 import requests
 import fiona
 import geopandas as gpd
 acs_lehd = __import__('01_acs_lehd')
-
-# Set working directory (make dynamic later)
-os.chdir('/mnt/e/CR2/Repos/TNC-Demand-Model-Southeast/inputs/')
 
 def linear_trip_gen_tod_pickups():
     # Get linear predicted pickups by TOD
@@ -35,5 +35,9 @@ def linear_trip_gen_tod_pickups():
     for i in ['nt_pred_pickups', 'am_pred_pickups', 'md_pred_pickups', 'pm_pred_pickups', 'ev_pred_pickups', 'pred_pickups']:
         pickups[i + "_log"] = np.where(pickups[i] == 0, 0, np.log(pickups[i]))
     
+    # Write to CSV
+    print("Writing to CSV...")
+    pickups = pickups[['geoid_origin', 'am_pred_pickups', 'nt_pred_pickups', 'md_pred_pickups', 'pm_pred_pickups', 'ev_pred_pickups', 'pred_pickups',  'nt_pred_pickups_log', 'am_pred_pickups_log', 'md_pred_pickups_log','pm_pred_pickups_log', 'ev_pred_pickups_log', 'pred_pickups_log']]
+    pickups.to_csv("../outputs/linear_pickups.csv", index = False)
     return pickups
 
