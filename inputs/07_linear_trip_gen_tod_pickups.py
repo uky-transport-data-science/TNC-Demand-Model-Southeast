@@ -37,6 +37,3 @@ def linear_trip_gen_tod_pickups():
     
     return pickups
 
-linear_trip_gen_tod_pickups()
-   
-
