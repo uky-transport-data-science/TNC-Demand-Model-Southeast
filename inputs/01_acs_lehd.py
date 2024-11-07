@@ -1,5 +1,9 @@
 #### Collect Census Data using Census API
-# Import Libraries
+# Set working directory (make dynamic later)
+import os
+os.chdir('/mnt/e/CR2/Repos/TNC-Demand-Model-Southeast/inputs/')
+
+# Import libraries
 import numpy as np
 import pandas as pd
 import census
@@ -9,9 +13,6 @@ import io
 import requests
 import fiona
 import geopandas as gpd
-
-# Set working directory
-os.chdir('/mnt/e/CR2/Repos/TNC-Demand-Model-Southeast/inputs/')
 
 # Activate Census Key
 c = Census("4049ee84e96e784c0042da45d81f95514d53b7fd")
