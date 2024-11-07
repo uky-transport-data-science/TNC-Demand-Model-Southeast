@@ -13,7 +13,7 @@ import requests
 import fiona
 import geopandas as gpd
 acs_lehd = __import__('01_acs_lehd')
-mode_choice_utility_logsums = __import__('06_mode_choice_utility_logsums')
+mode_choice_utility_logsums = __import__('06_mode_choice_step1')
 
 def trip_dist_dest_choice():
     # Get linear predicted dropoffs by TOD

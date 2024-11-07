@@ -61,7 +61,9 @@ def get_median_income():
     median_inc[["median_income_dest"]] = median_inc[["median_income_origin"]]
     return median_inc
 
-def mode_choice_utility_logsums():
+def mode_choice_step1():
+    "This function returns initial mode choice utilities/probabilities/logsums."
+    "Output: dataframe"
     # Read in data
     utility = pd.read_csv('../outputs/fares_and_times.csv')
     #utility = priv_shared_fares.priv_shared_fares()

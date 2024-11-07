@@ -81,7 +81,7 @@ def get_household_density(study_state = "KY"):
     dest_hh_density = households[["geoid", "dest_hh_density"]]
     return origin_hh_density, dest_hh_density
 
-def mode_choice_p2():
+def mode_choice_step2():
     # Read in Data
     print("Reading in negative binomial trip data..")
     trips = pd.read_csv('../outputs/neg_bin_pred_trips.csv')
