@@ -29,7 +29,7 @@ def trip_dist_dest_choice(study_state, scenario_name):
 
     # Read in utitlity/probability/logsum data
     print("Reading in utility/probability/logsum data...")
-    logsum = pd.read_csv('../outputs/mode_choice_utility_logsums.csv')
+    logsum = pd.read_csv('../outputs/' + study_state + '_mode_choice_utility_logsums_' + scenario_name + '.csv')
     logsum = logsum[['geoid_origin', 'geoid_dest', 'travel_distance', 'mode_logsum_airport', 'mode_logsum_no_airport']]
     logsum.head()
 
