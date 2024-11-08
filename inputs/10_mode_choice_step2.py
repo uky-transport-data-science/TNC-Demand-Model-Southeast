@@ -12,7 +12,7 @@ import io
 import requests
 import fiona
 import geopandas as gpd
-mode_choice_utility_logsums = __import__('06_mode_choice_utility_logsums')
+mode_choice_utility_logsums = __import__('06_mode_choice_step1')
 
 # Activate Census Key
 c = Census("4049ee84e96e784c0042da45d81f95514d53b7fd")
@@ -150,7 +150,7 @@ def mode_choice_step2():
     trips_wide = matched_trips
     print("Creating wide dataframe and writing out to CSV...")
     trips_wide.to_csv("../outputs/trips_final_wide.csv", index = False)
-
+    trips_wide.columns
     # Create long dataframe
     print("Creating long dataframe and writing out to CSV...")
     ## Private Trips
