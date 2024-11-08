@@ -15,7 +15,7 @@ import geopandas as gpd
 acs_lehd = __import__('01_acs_lehd')
 mode_choice_utility_logsums = __import__('06_mode_choice_step1')
 
-def trip_dist_dest_choice():
+def trip_dist_dest_choice(study_state, scenario_name):
     # Get linear predicted dropoffs by TOD
     print("Getting linear predicted dropoffs by TOD...")
     dropoffs = acs_lehd.get_acs_lehd()
@@ -69,6 +69,6 @@ def trip_dist_dest_choice():
     ### Write to CSV
     print("Writing to CSV...")
     dest_choice = df[['geoid_origin', 'geoid_dest', 'dest_choice_logsum', 'nt_prob', 'am_prob', 'md_prob', 'pm_prob', 'ev_prob', 'airport', 'tourist', 'median_age', 'pct_bach_25p', 'total_emp_den']]
-    dest_choice.to_csv('../outputs/dest_choice_prob_logsum.csv', index = False)
+    dest_choice.to_csv('../outputs/' + study_state + '_dest_choice_prob_logsum_' + scenario_name + '.csv', index = False)
 
    

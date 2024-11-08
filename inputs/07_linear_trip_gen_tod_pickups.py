@@ -14,7 +14,7 @@ import fiona
 import geopandas as gpd
 acs_lehd = __import__('01_acs_lehd')
 
-def linear_trip_gen_tod_pickups():
+def linear_trip_gen_tod_pickups(scenario_name, study_state):
     # Get linear predicted pickups by TOD
     print("Get linear predicted pickups by TOD...")
     pickups = acs_lehd.get_acs_lehd()
@@ -38,6 +38,6 @@ def linear_trip_gen_tod_pickups():
     # Write to CSV
     print("Writing to CSV...")
     pickups = pickups[['geoid_origin', 'am_pred_pickups', 'nt_pred_pickups', 'md_pred_pickups', 'pm_pred_pickups', 'ev_pred_pickups', 'pred_pickups',  'nt_pred_pickups_log', 'am_pred_pickups_log', 'md_pred_pickups_log','pm_pred_pickups_log', 'ev_pred_pickups_log', 'pred_pickups_log']]
-    pickups.to_csv("../outputs/linear_pickups.csv", index = False)
+    pickups.to_csv("../outputs/" + study_state + "_linear_pickups_" + scenario_name + ".csv", index = False)
     return pickups
 

@@ -61,11 +61,11 @@ def get_median_income():
     median_inc[["median_income_dest"]] = median_inc[["median_income_origin"]]
     return median_inc
 
-def mode_choice_step1():
+def mode_choice_step1(study_state, scenario_name):
     "This function returns initial mode choice utilities/probabilities/logsums."
     "Output: dataframe"
     # Read in data
-    utility = pd.read_csv('../outputs/fares_and_times.csv')
+    utility = pd.read_csv('../outputs/' + study_state + '_fares_and_times_' + scenario_name + '.csv')
     #utility = priv_shared_fares.priv_shared_fares()
     # Create indicator to see if an airport is in the origin or destination.
     ## These are the airports in Kentucky.
@@ -112,5 +112,5 @@ def mode_choice_step1():
 
     ### Write to CSV
     print("Writing to CSV...")
-    utility.to_csv('../outputs/mode_choice_utility_logsums.csv', index = False)
+    utility.to_csv('../outputs/' + study_state + '_mode_choice_utility_logsums_' + scenario_name + '.csv', index = False)
     return utility

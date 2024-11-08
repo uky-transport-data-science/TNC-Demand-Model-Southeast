@@ -81,13 +81,13 @@ def get_household_density(study_state = "KY"):
     dest_hh_density = households[["geoid", "dest_hh_density"]]
     return origin_hh_density, dest_hh_density
 
-def mode_choice_step2():
+def mode_choice_step2(study_state, scenario_name):
     # Read in Data
     print("Reading in negative binomial trip data..")
-    trips = pd.read_csv('../outputs/neg_bin_pred_trips.csv')
+    trips = pd.read_csv('../outputs/' + study_state + '_neg_bin_pred_trips_' + scenario_name + '.csv')
     
     print("Reading in travel time data..")
-    traveltime = pd.read_csv('../outputs/fares_and_times.csv')
+    traveltime = pd.read_csv('../outputs/' + study_state + '_fares_and_times_' + scenario_name + '.csv')
     traveltime = traveltime[['geoid_origin', 'geoid_dest', 'private_travel_time', 'private_fares', 'shared_travel_time', 'shared_fares']]
 
     print("Reading in median income data...")
@@ -149,7 +149,7 @@ def mode_choice_step2():
     matched_trips = matched_trips.drop(["geoid_x", "geoid_y"], axis = "columns")
     trips_wide = matched_trips
     print("Creating wide dataframe and writing out to CSV...")
-    trips_wide.to_csv("../outputs/trips_final_wide.csv", index = False)
+    trips_wide.to_csv("../outputs/" + study_state + "_trips_final_wide_" + scenario_name + ".csv", index = False)
     trips_wide.columns
     # Create long dataframe
     print("Creating long dataframe and writing out to CSV...")
@@ -175,7 +175,7 @@ def mode_choice_step2():
     unmatched_trips['trip_type'] = 'unmatched'
 
     trips_long = pd.concat([private_trips, only_matched_trips, unmatched_trips], ignore_index = True)
-    trips_long.to_csv("../outputs/trips_final_long.csv", index = False)
+    trips_long.to_csv("../outputs/" + study_state + "_trips_final_long_" + scenario_name + ".csv", index = False)
 
     print("All finished!")
 

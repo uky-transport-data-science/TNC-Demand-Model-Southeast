@@ -119,7 +119,7 @@ def get_acs_lehd(study_state = "KY"):
     # Get number of vehicles by household income
     print("Getting vehicles by household income...")
     ## Load data (MAKE ARGUMENT FOR STATE)
-    veh_hh_inc_load = pd.read_csv(os.getcwd() + '/A112306/A112306_KY.csv')
+    veh_hh_inc_load = pd.read_csv('../inputs/A112306/A112306_KY.csv')
     veh_hh_inc_load.head()
     ## Clean data
     ### Set first row as column names

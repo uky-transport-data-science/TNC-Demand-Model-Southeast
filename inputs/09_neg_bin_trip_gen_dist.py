@@ -13,12 +13,11 @@ import requests
 import fiona
 import geopandas as gpd
 
-def neg_bin_trip_gen_dist():
+def neg_bin_trip_gen_dist(study_state, scenario_name):
     # Read in Data
     print("Reading in linear pickup and destination choice data...")
-    pickups = pd.read_csv('../outputs/linear_pickups.csv')
-    dest_choice = pd.read_csv('../outputs/dest_choice_prob_logsum.csv')
-
+    pickups = pd.read_csv('../outputs/' + study_state + '_linear_pickups_' + scenario_name + '.csv')
+    dest_choice = pd.read_csv('../outputs/' + study_state + '_dest_choice_prob_logsum_' + scenario_name + '.csv')
     # Merge data by geoid_origin
     print("Merging data by origin")
     df = dest_choice.merge(pickups, on = "geoid_origin")
@@ -41,4 +40,4 @@ def neg_bin_trip_gen_dist():
     # Write to CSV
     print("Writing to CSV...")
     neg_bin_pred_trips = df[['geoid_origin', 'geoid_dest', 'nt_trips', 'am_trips', 'md_trips', 'pm_trips', 'ev_trips']]
-    neg_bin_pred_trips.to_csv('../outputs/neg_bin_pred_trips.csv', index = False)
+    neg_bin_pred_trips.to_csv('../outputs/' + study_state + '_neg_bin_pred_trips_' + scenario_name + '.csv', index = False)
