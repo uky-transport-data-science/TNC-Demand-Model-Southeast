@@ -10,12 +10,9 @@ if (length(need_to_install)) install.packages(need_to_install)
 lapply(packages_vector, library, character.only = TRUE)
 options(scipen = 999)
 
-## Matched Trips
-full_df <- fread("../outputs/KY_trips_final_wide_baseline.csv")
 
 # Get full long file ------------------------------------------------------
 full_df <- fread("../outputs/KY_trips_final_long_baseline.csv")
-View(head(full_df))
 
 # Geography Data ----------------------------------------------------------
 ## Load in Geography Data

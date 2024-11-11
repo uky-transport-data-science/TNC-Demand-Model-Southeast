@@ -196,6 +196,7 @@ def mode_choice_step2(study_state, scenario_name):
     travel_distance = pd.read_csv("../outputs/" + study_state + "_travel_time_distance.csv")
     travel_distance = travel_distance[["geoid_origin", "geoid_dest",  "travel_distance"]]
     trips_long = pd.merge(trips_long, travel_distance, on=['geoid_origin', 'geoid_dest'], how='left')
+    trips_long['shared'] = np.where(trips_long['trip_type'] == "private", "private", "shared")
     trips_long.to_csv("../outputs/" + study_state + "_trips_final_long_" + scenario_name + ".csv", index = False)
 
     ## Delete files
