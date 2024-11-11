@@ -1,7 +1,7 @@
 # Run TNC-SE Model
 study_state = "KY"
-scenario_name = "quarter_fare"
-fare_adjust = 0.25
+scenario_name = "baseline"
+fare_adjust = 1 # default baseline is 1 (i.e. multiply fare by itself)
 
 # Set working directory
 import os

@@ -155,7 +155,6 @@ def mode_choice_step2(study_state, scenario_name):
     # Create long dataframe
     print("Creating long dataframe and writing out to CSV...")
     ## Private Trips
-    matched_trips = pd.read_csv("../outputs/KY_trips_final_wide_baseline.csv")
     private_trips = matched_trips[["geoid_origin", "geoid_dest", "private_nt_trips", "private_am_trips", "private_md_trips", "private_pm_trips", "private_ev_trips", "private_travel_time", "private_fares"]]
     private_trips.columns = private_trips.columns.str.replace('private_', '') 
     private_trips_od_ttf = private_trips[["geoid_origin", "geoid_dest", "travel_time", "fares"]]
@@ -167,8 +166,10 @@ def mode_choice_step2(study_state, scenario_name):
     private_trips = pd.merge(private_trips, private_trips_od_ttf, on=['geoid_origin', 'geoid_dest'], how='left')
 
     ## Matched Trips
-    only_matched_trips = matched_trips[["geoid_origin", "geoid_dest", "matched_nt_trips", "matched_am_trips", "matched_md_trips", "matched_pm_trips", "matched_ev_trips"]]
+    matched_trips = pd.read_csv("../outputs/KY_trips_final_wide_half_fare.csv")
+    only_matched_trips = matched_trips[["geoid_origin", "geoid_dest", "matched_nt_trips", "matched_am_trips", "matched_md_trips", "matched_pm_trips", "matched_ev_trips", "shared_travel_time", "shared_fares"]]
     only_matched_trips.columns = only_matched_trips.columns.str.replace('matched_', '')
+    only_matched_trips.columns = only_matched_trips.columns.str.replace('shared_', '')
     only_matched_trips_od_ttf = only_matched_trips[["geoid_origin", "geoid_dest", "travel_time", "fares"]]
     only_matched_trips = pd.melt(only_matched_trips, id_vars=['geoid_origin', 'geoid_dest'], value_vars=['nt_trips', 'am_trips', 'md_trips', 'pm_trips', 'ev_trips'], var_name = 'time_of_day', value_name = 'trips')
     only_matched_trips['time_of_day'] = only_matched_trips['time_of_day'].str[:2]
@@ -178,8 +179,9 @@ def mode_choice_step2(study_state, scenario_name):
     only_matched_trips = pd.merge(only_matched_trips, only_matched_trips_od_ttf, on=['geoid_origin', 'geoid_dest'], how='left')
 
     ## Unmatched Trips
-    unmatched_trips = matched_trips[['geoid_origin', 'geoid_dest', "unmatched_nt_trips", "unmatched_am_trips", "unmatched_md_trips", "unmatched_pm_trips", "unmatched_ev_trips"]]
+    unmatched_trips = matched_trips[['geoid_origin', 'geoid_dest', "unmatched_nt_trips", "unmatched_am_trips", "unmatched_md_trips", "unmatched_pm_trips", "unmatched_ev_trips", "shared_travel_time", "shared_fares"]]
     unmatched_trips.columns = unmatched_trips.columns.str.replace ('unmatched_', '') 
+    unmatched_trips.columns = unmatched_trips.columns.str.replace ('shared_', '') 
     unmatched_trips_od_ttf = unmatched_trips[["geoid_origin", "geoid_dest", "travel_time", "fares"]]
     unmatched_trips = pd.melt(unmatched_trips, id_vars=['geoid_origin', 'geoid_dest'], value_vars=['nt_trips', 'am_trips', 'md_trips', 'pm_trips', 'ev_trips'], var_name = 'time_of_day', value_name = 'trips')
     unmatched_trips['time_of_day'] = unmatched_trips['time_of_day'].str[:2]

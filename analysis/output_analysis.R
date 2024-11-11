@@ -1,57 +1,19 @@
 #### TNC Trip Analysis
 
+
+# Get full long file ------------------------------------------------------
+
+
 # Set Working Directory ---------------------------------------------------
 setwd("E:/CR2/Repos/TNC-Demand-Model-Southeast/analysis")
 
-
 # Load Packages ----------------------------------------------------------
-packages_vector <- c("tidyverse", "sf", "tigris", "collapse")
+packages_vector <- c("tidyverse", "sf", "tigris", "collapse", "data.table")
 need_to_install <- packages_vector[!(packages_vector %in% installed.packages()[,"Package"])]
 if (length(need_to_install)) install.packages(need_to_install)
 lapply(packages_vector, library, character.only = TRUE)
 options(scipen = 999)
 
-# Create full long dataframe ----------------------------------------------
-trip_data <- read.csv("../outputs/KY_trips_final_long.csv")
-trip_data$time_of_day <- factor(trip_data$time_of_day, levels = c("nt", "am", "md", "pm", "ev"))
-trip_data$trip_type <- factor(trip_data$trip_type, levels = c("matched", "unmatched", "private"))
-trip_data$shared <- ifelse(trip_data$trip_type == "private", "Private", "Shared")
-
-trip_data$time_of_day <- toupper(trip_data$time_of_day)
-trip_data$trip_type <- gsub("^(\\w)(\\w+)", "\\U\\1\\L\\2", 
-                          trip_data$trip_type, perl = TRUE)
-
-## Load in fare data
-ttfd_wide <- read.csv("../outputs/KY_fares_and_times.csv")
-ttfd_wide <- ttfd_wide %>%
-  select(-travel_time)
-
-fare_wide <- ttfd_wide %>%
-  select(geoid_origin, geoid_dest, travel_distance, private_fares, shared_fares)
-
-time_wide <- ttfd_wide %>%
-  select(geoid_origin, geoid_dest, travel_distance, private_travel_time, shared_travel_time)
-
-
-## Make long
-fare_long <- gather(fare_wide, shared, 
-                    fare, private_fares:shared_fares, 
-                    factor_key=TRUE)
-fare_long$shared <-
-  ifelse(fare_long$shared == "private_fares", "Private", "Shared")
-
-time_long <- gather(time_wide, shared,
-                    travel_time, private_travel_time:shared_travel_time, 
-                    factor_key = TRUE)
-time_long$shared <-
-  ifelse(time_long$shared == "private_travel_time", "Private", "Shared")
-
-## Combine
-fare_time <- inner_join(fare_long, time_long, by = c("geoid_origin", "geoid_dest", "shared", "travel_distance"))
-
-### All trips and fares
-full_df <- trip_data %>%
-  left_join(fare_time, by = c("geoid_origin", "geoid_dest", "shared"))
 
 
 # Geography Data ----------------------------------------------------------
