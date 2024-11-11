@@ -3,14 +3,13 @@
 # Set Working Directory ---------------------------------------------------
 setwd("E:/CR2/Repos/TNC-Demand-Model-Southeast/analysis")
 
+
 # Load Packages ----------------------------------------------------------
 packages_vector <- c("tidyverse", "sf", "tigris", "collapse")
 need_to_install <- packages_vector[!(packages_vector %in% installed.packages()[,"Package"])]
 if (length(need_to_install)) install.packages(need_to_install)
 lapply(packages_vector, library, character.only = TRUE)
 options(scipen = 999)
-
-
 
 # Create full long dataframe ----------------------------------------------
 trip_data <- read.csv("../outputs/KY_trips_final_long.csv")

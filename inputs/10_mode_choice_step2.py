@@ -9,6 +9,7 @@ import pandas as pd
 import census
 from census import Census
 import io
+import glob
 import requests
 import fiona
 import geopandas as gpd
@@ -150,32 +151,57 @@ def mode_choice_step2(study_state, scenario_name):
     trips_wide = matched_trips
     print("Creating wide dataframe and writing out to CSV...")
     trips_wide.to_csv("../outputs/" + study_state + "_trips_final_wide_" + scenario_name + ".csv", index = False)
-    trips_wide.columns
+    
     # Create long dataframe
     print("Creating long dataframe and writing out to CSV...")
     ## Private Trips
+    matched_trips = pd.read_csv("../outputs/KY_trips_final_wide_baseline.csv")
     private_trips = matched_trips[["geoid_origin", "geoid_dest", "private_nt_trips", "private_am_trips", "private_md_trips", "private_pm_trips", "private_ev_trips", "private_travel_time", "private_fares"]]
     private_trips.columns = private_trips.columns.str.replace('private_', '') 
+    private_trips_od_ttf = private_trips[["geoid_origin", "geoid_dest", "travel_time", "fares"]]
     private_trips = pd.melt(private_trips, id_vars=['geoid_origin', 'geoid_dest'], value_vars=['nt_trips', 'am_trips', 'md_trips', 'pm_trips', 'ev_trips'], var_name = 'time_of_day', value_name = 'trips')
     private_trips['time_of_day'] = private_trips['time_of_day'].str[:2]
     private_trips['trip_type'] = 'private'
 
+    ### Join Travel Time and Fare Data (ttf)
+    private_trips = pd.merge(private_trips, private_trips_od_ttf, on=['geoid_origin', 'geoid_dest'], how='left')
+
     ## Matched Trips
     only_matched_trips = matched_trips[["geoid_origin", "geoid_dest", "matched_nt_trips", "matched_am_trips", "matched_md_trips", "matched_pm_trips", "matched_ev_trips"]]
     only_matched_trips.columns = only_matched_trips.columns.str.replace('matched_', '')
+    only_matched_trips_od_ttf = only_matched_trips[["geoid_origin", "geoid_dest", "travel_time", "fares"]]
     only_matched_trips = pd.melt(only_matched_trips, id_vars=['geoid_origin', 'geoid_dest'], value_vars=['nt_trips', 'am_trips', 'md_trips', 'pm_trips', 'ev_trips'], var_name = 'time_of_day', value_name = 'trips')
     only_matched_trips['time_of_day'] = only_matched_trips['time_of_day'].str[:2]
     only_matched_trips['trip_type'] = 'matched'
 
+    ### Join Travel Time and Fare Data (ttf)
+    only_matched_trips = pd.merge(only_matched_trips, only_matched_trips_od_ttf, on=['geoid_origin', 'geoid_dest'], how='left')
+
     ## Unmatched Trips
     unmatched_trips = matched_trips[['geoid_origin', 'geoid_dest', "unmatched_nt_trips", "unmatched_am_trips", "unmatched_md_trips", "unmatched_pm_trips", "unmatched_ev_trips"]]
     unmatched_trips.columns = unmatched_trips.columns.str.replace ('unmatched_', '') 
+    unmatched_trips_od_ttf = unmatched_trips[["geoid_origin", "geoid_dest", "travel_time", "fares"]]
     unmatched_trips = pd.melt(unmatched_trips, id_vars=['geoid_origin', 'geoid_dest'], value_vars=['nt_trips', 'am_trips', 'md_trips', 'pm_trips', 'ev_trips'], var_name = 'time_of_day', value_name = 'trips')
     unmatched_trips['time_of_day'] = unmatched_trips['time_of_day'].str[:2]
     unmatched_trips['trip_type'] = 'unmatched'
 
+    ### Join Travel Time and Fare Data (ttf)
+    unmatched_trips = pd.merge(unmatched_trips, unmatched_trips_od_ttf, on=['geoid_origin', 'geoid_dest'], how='left')
+
+    ## Write out trips_long
     trips_long = pd.concat([private_trips, only_matched_trips, unmatched_trips], ignore_index = True)
     trips_long.to_csv("../outputs/" + study_state + "_trips_final_long_" + scenario_name + ".csv", index = False)
+
+    ## Delete files
+    os.chdir('/mnt/e/CR2/Repos/TNC-Demand-Model-Southeast/outputs/')
+    patterns = ['*neg_bin*', '*dest_choice*', '*logsums*', '*linear*', '*matched_trips*']
+    files = [f for pattern in patterns for f in glob.glob(pattern)]
+    dir_path = os.getcwd()
+
+    # Iterate over the files and delete them
+    for file_name in files:
+        file_path = os.path.join(dir_path, file_name)
+        os.remove(file_path)
 
     print("All finished!")
 
