@@ -166,7 +166,6 @@ def mode_choice_step2(study_state, scenario_name):
     private_trips = pd.merge(private_trips, private_trips_od_ttf, on=['geoid_origin', 'geoid_dest'], how='left')
 
     ## Matched Trips
-    matched_trips = pd.read_csv("../outputs/KY_trips_final_wide_half_fare.csv")
     only_matched_trips = matched_trips[["geoid_origin", "geoid_dest", "matched_nt_trips", "matched_am_trips", "matched_md_trips", "matched_pm_trips", "matched_ev_trips", "shared_travel_time", "shared_fares"]]
     only_matched_trips.columns = only_matched_trips.columns.str.replace('matched_', '')
     only_matched_trips.columns = only_matched_trips.columns.str.replace('shared_', '')

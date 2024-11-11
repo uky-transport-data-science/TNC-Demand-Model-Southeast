@@ -10,9 +10,11 @@ if (length(need_to_install)) install.packages(need_to_install)
 lapply(packages_vector, library, character.only = TRUE)
 options(scipen = 999)
 
+full_df <- fread("../outputs/KY_trips_final_wide_baseline.csv")
+colnames(full_df)
 
 # Get full long file ------------------------------------------------------
-full_df <- fread("../outputs/KY_trips_final_long_baseline.csv")
+full_df <- fread("../outputs/KY_trips_final_long_quarter_fare.csv")
 
 # Geography Data ----------------------------------------------------------
 ## Load in Geography Data
@@ -58,28 +60,28 @@ weighted.mean(distance$travel_distance,
 
 ## Trips and Fares
 fare_summary <- full_df %>%
-  group_by(geoid_origin, geoid_dest, fare, shared) %>%
+  group_by(geoid_origin, geoid_dest, fares, shared) %>%
   summarize(trips = sum(trips, na.rm = TRUE))
 
 
-weighted.mean(fare_summary$fare[fare_summary$shared == "Private"], 
+weighted.mean(fare_summary$fares[fare_summary$shared == "Private"], 
               dplyr::coalesce(fare_summary$trips[fare_summary$shared == "Private"], 0), 
               na.rm = TRUE)
 
-weighted.mean(fare_summary$fare[fare_summary$shared == "Shared"], 
+weighted.mean(fare_summary$fares[fare_summary$shared == "Shared"], 
               dplyr::coalesce(fare_summary$trips[fare_summary$shared == "Shared"], 0), 
               na.rm = TRUE)
 
 fare_summary_under60 <- full_df %>%
   filter(travel_time < 60)  %>%
-  group_by(geoid_origin, geoid_dest, fare, shared) %>%
+  group_by(geoid_origin, geoid_dest, fares, shared) %>%
   summarize(trips = sum(trips, na.rm = TRUE))
 
-weighted.mean(fare_summary_under60$fare[fare_summary_under60$shared == "Private"], 
+weighted.mean(fare_summary_under60$fares[fare_summary_under60$shared == "Private"], 
               dplyr::coalesce(fare_summary_under60$trips[fare_summary_under60$shared == "Private"], 0), 
               na.rm = TRUE)
 
-weighted.mean(fare_summary_under60$fare[fare_summary_under60$shared == "Shared"], 
+weighted.mean(fare_summary_under60$fares[fare_summary_under60$shared == "Shared"], 
               dplyr::coalesce(fare_summary_under60$trips[fare_summary_under60$shared == "Shared"], 0), 
               na.rm = TRUE)
 
@@ -98,7 +100,7 @@ trips_by_tod <- full_df %>%
   group_by(time_of_day, trip_type) %>%
   summarize(trips = sum(trips, na.rm = TRUE))
 
-trips_by_tod$time_of_day <- factor(trips_by_tod$time_of_day, levels=c("NT", "AM", "MD", "PM", "EV"))
+trips_by_tod$time_of_day <- factor(trips_by_tod$time_of_day, levels=c("nt", "am", "md", "pm", "ev"))
 
 ggplot(trips_by_tod, aes(x = time_of_day, y = trips, fill = trip_type, label = round(trips))) +
   geom_bar(position = "dodge", stat = "identity") +
