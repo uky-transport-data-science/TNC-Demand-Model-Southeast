@@ -192,9 +192,14 @@ def mode_choice_step2(study_state, scenario_name):
 
     ## Write out trips_long
     trips_long = pd.concat([private_trips, only_matched_trips, unmatched_trips], ignore_index = True)
+    ### Join with travel distance
+    travel_distance = pd.read_csv("../outputs/" + study_state + "_travel_time_distance.csv")
+    travel_distance = travel_distance[["geoid_origin", "geoid_dest",  "travel_distance"]]
+    trips_long = pd.merge(trips_long, travel_distance, on=['geoid_origin', 'geoid_dest'], how='left')
     trips_long.to_csv("../outputs/" + study_state + "_trips_final_long_" + scenario_name + ".csv", index = False)
 
     ## Delete files
+    print("Deleting intermediate files...")
     os.chdir('/mnt/e/CR2/Repos/TNC-Demand-Model-Southeast/outputs/')
     patterns = ['*neg_bin*', '*dest_choice*', '*logsums*', '*linear*', '*matched_trips*']
     files = [f for pattern in patterns for f in glob.glob(pattern)]
