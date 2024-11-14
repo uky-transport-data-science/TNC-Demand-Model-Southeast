@@ -4,18 +4,28 @@
 setwd("E:/CR2/Repos/TNC-Demand-Model-Southeast/analysis")
 
 # Load Packages ----------------------------------------------------------
-packages_vector <- c("tidyverse", "sf", "tigris", "collapse", "data.table")
+packages_vector <- c("tidyverse", "sf", "tigris", "collapse", "data.table", "janitor")
 need_to_install <- packages_vector[!(packages_vector %in% installed.packages()[,"Package"])]
 if (length(need_to_install)) install.packages(need_to_install)
 lapply(packages_vector, library, character.only = TRUE)
 options(scipen = 999)
 
-full_df <- fread("../outputs/KY_trips_final_wide_baseline.csv")
-colnames(full_df)
+study_state <- "KY"
+scenario_name <- "half_fare"
 
 # Get full long file ------------------------------------------------------
-full_df <- fread("../outputs/KY_trips_final_long_quarter_fare.csv")
+full_df <- fread("../outputs/KY_trips_final_long_half_fare.csv")
 
+## Clean full long file
+full_df$time_of_day <- toupper(full_df$time_of_day)
+full_df$trip_type <- gsub("^(\\w)(\\w+)", "\\U\\1\\L\\2", 
+                          full_df$trip_type, perl = TRUE)
+full_df$shared <- gsub("^(\\w)(\\w+)", "\\U\\1\\L\\2", 
+                       full_df$shared, perl = TRUE)
+full_df$time_of_day <- factor(full_df$time_of_day, levels=c("NT", "AM", "MD", "PM", "EV"))
+full_df$trip_type <- factor(full_df$trip_type, levels=c("Private", "Matched", "Unmatched"))
+
+View(head(full_df))
 # Geography Data ----------------------------------------------------------
 ## Load in Geography Data
 ky <- tracts(state = "KY", year = 2020)
@@ -24,8 +34,8 @@ ky$INTPTLON <- as.numeric(ky$INTPTLON)
 ky$GEOID <- as.numeric(ky$GEOID)
 
 ky_map_data <- left_join(ky, full_df, by = c("GEOID" = "geoid_origin"))
-ky_map_data <- ky_map_data %>%
-  rename("geoid_origin" = "GEOID")
+# ky_map_data <- ky_map_data %>%
+#   rename("geoid_origin" = "GEOID")
 
 
 # Number of Trips ---------------------------------------------------------
@@ -100,13 +110,22 @@ trips_by_tod <- full_df %>%
   group_by(time_of_day, trip_type) %>%
   summarize(trips = sum(trips, na.rm = TRUE))
 
-trips_by_tod$time_of_day <- factor(trips_by_tod$time_of_day, levels=c("nt", "am", "md", "pm", "ev"))
+firstup <- function(x) {
+  substr(x, 1, 1) <- toupper(substr(x, 1, 1))
+  x
+}
 
 ggplot(trips_by_tod, aes(x = time_of_day, y = trips, fill = trip_type, label = round(trips))) +
   geom_bar(position = "dodge", stat = "identity") +
   geom_text(aes(label = round(trips, digits = 0)), position = position_dodge(width = .9), vjust = -0.3, size = 2.5) +
-  ggtitle("Trips by Time of Day") +
+  ggtitle(paste0(toupper(study_state), " Trips by Time of Day (", str_to_title(sub("_", " ", scenario_name)), ")")) +
   xlab("Time of Day") + ylab("Trips") + guides(fill=guide_legend(title="Trip Type"))
+
+ggsave(filename = paste0("../outputs/", toupper(study_state), "_trips_by_tod_", firstup(scenario_name), ".pdf"),
+       width = 8,
+       height = 6)
+
+dev.off()
 
 # Map of Origins ----------------------------------------------------------
 ky_map_data$trips[is.na(ky_map_data$trips)] <- 0
@@ -148,11 +167,17 @@ ggplot(origin_trips_map_df) +
           color = "black",
           linetype = 1,
           lwd = 0.001) +
-  scale_fill_brewer(palette = "YlOrRd") + ggtitle("Number of Trips from Origin") +
+  scale_fill_brewer(palette = "YlOrRd") + ggtitle(paste0(toupper(study_state), " Number of Trips from Origin (", str_to_title(sub("_", " ", scenario_name)), ")")) +
   theme(axis.text.x=element_blank(),
         axis.text.y=element_blank(),
         axis.ticks=element_blank()) + 
   guides(fill=guide_legend(title="Number of Trips"))
+
+ggsave(filename = paste0("../outputs/", toupper(study_state), "_trips_from_origin_", firstup(scenario_name), ".pdf"),
+    width = 17, # The width of the plot in inches
+    height = 12)
+
+dev.off()
 
 
 # Urban/Rural -------------------------------------------------------------
@@ -171,7 +196,9 @@ census_urban_ky <- census_urban %>%
   filter(STATE == 21)
 ### Make all column names lowercase
 colnames(census_urban_ky) <- tolower(colnames(census_urban_ky))
-census_urban_ky$geoid_origin <- as.numeric(gsub('.{4}$', '', as.character(census_urban_ky$GEOID)))
+census_urban_ky <- census_urban_ky %>%
+  rename(geoid_origin = geoid)
+census_urban_ky$geoid_origin <- as.numeric(gsub('.{4}$', '', as.character(census_urban_ky$geoid_origin)))
 census_urban_ky <- census_urban_ky %>% 
   select(geoid_origin, state, county, tract, `2020_ua_name`)
 
