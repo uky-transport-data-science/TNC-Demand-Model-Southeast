@@ -11,3 +11,8 @@ The requirements for running this model are the following:
 - Julia
 - Windows Subsystem for Linux (WSL, installation instructions: https://learn.microsoft.com/en-us/windows/wsl/install)
 - Census API Key (retrieve key from here: https://api.census.gov/data/key_signup.html)
+
+## How to run the model
+1. Update model_config.json.
+2. Because you're running this from WSL, enter this command to fix the line-break issues: `sed -i 's/\r//g' run_tncse.sh1
+   
