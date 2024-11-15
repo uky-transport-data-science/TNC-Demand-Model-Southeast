@@ -10,4 +10,4 @@ The requirements for running this model are the following:
 - R (v4.0+)
 - Julia
 - Windows Subsystem for Linux (WSL)
-- Census API Key (use this website: [https://api.census.gov/data/key_signup.html])
+- Census API Key (use this website: https://api.census.gov/data/key_signup.html)
