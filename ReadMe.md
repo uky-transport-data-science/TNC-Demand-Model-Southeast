@@ -9,5 +9,5 @@ The requirements for running this model are the following:
 - Python (v3.9+)
 - R (v4.0+)
 - Julia
-- Windows Subsystem for Linux (WSL)
-- Census API Key (use this website: https://api.census.gov/data/key_signup.html)
+- Windows Subsystem for Linux (WSL, installation instructions: https://learn.microsoft.com/en-us/windows/wsl/install)
+- Census API Key (retrieve key from here: https://api.census.gov/data/key_signup.html)
