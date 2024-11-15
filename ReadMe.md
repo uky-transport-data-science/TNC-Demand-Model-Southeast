@@ -1,19 +1,13 @@
-RS 05.30.2024
+# TNC Demand Model Southeast Documentation
 
-Application of Ride-Hail Demand Model to Census Tracts in the Southeast origin.
+## Overview
 
-# Apply Trip Generation
+This model is an application of the TNC Demand Model estimated using Chicago data (Mucci and Erhardt 2023) on Census tracts in the Southeastern United States. The final output is a data frame that contains the number of trips from each Census tract by time of day, whether they're private or shared (and if shared, whether they're matched or unmatched), and the associated travel time (in minutes) and fares (in US Dollars). 
 
-- You'll need the proper raw inputs for your case. Go to raw inputs and look at the readme for each folder. 
-
-- Then go to process_data and look at the readme. Run the notebooks for Apply Trip Generation.
-
-# Car Travel Times / Utility / Fares for Shared and Private Trips
-
-- You'll need centroids, go to raw input and check the read me
-
-- Go to OTP folder. It'll give you a few steps to start up Open Trip Planner to calculate car travel times from each census tract centroid to every other census tract centroid. 
-
-- Once thats done, go to process_data and read the readme
-
-
+## Setup
+The requirements for running this model are the following:
+- Python (v3.9+)
+- R (v4.0+)
+- Julia
+- Windows Subsystem for Linux (WSL)
+- Census API Key (use this website: [https://api.census.gov/data/key_signup.html])
