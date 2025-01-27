@@ -1,39 +1,54 @@
 #### Collect Census Data using Census API
-# Set working directory (make dynamic later)
+# Set working directory
 import os
-os.chdir('/mnt/e/CR2/Repos/TNC-Demand-Model-Southeast/inputs/')
+os.getcwd()
 
 # Import libraries
+import warnings
+warnings.simplefilter(action='ignore')
 import numpy as np
 import pandas as pd
 import census
 from census import Census
-import os
 import io
 import requests
 import fiona
 import geopandas as gpd
+import json
+
+## Read JSON file
+with open('../model_config.json') as f: 
+    model_config = json.load(f)
+
+## Pass Parameters
+study_state = model_config["study_state"]
+scenario_name = model_config["scenario_name"]
+fare_adjust = model_config["fare_adjust"]
+census_key = model_config["census_key"]
+ctpp_key = model_config["ctpp_key"]
 
 # Activate Census Key
-c = Census("4049ee84e96e784c0042da45d81f95514d53b7fd")
+c = Census(census_key)
 
 # FIPS Codes for States
 AL = '01'
 FL = '12'
 GA = '13'
 KY = '21'
+MA = '25'
 MS = '28'
 NC = '37'
 SC = '45'
 TN = '47'
 
-states_list = [AL, FL, GA, KY, MS, NC, SC, TN]
+states_list = [AL, FL, GA, KY, MA, MS, NC, SC, TN]
 states_string = ','.join(states_list)
 
 fips_dict =  {'AL':'01',
               'FL':'12',
               'GA':'13',
               'KY':'21',
+              'MA':'25',
               'MS':'28',
               'NC':'37',
               'SC':'45',
@@ -41,10 +56,7 @@ fips_dict =  {'AL':'01',
 
 fips_df = pd.DataFrame(fips_dict.items(), columns=['state_abb', 'fips_code'])
 
-# Main Function
-def get_acs_lehd(study_state = "KY"):
-    "This function returns ACS and LEHD Data for a given study state."
-    "Output: dataframe"
+def get_acs_lehd(study_state):
     # Median Age by Census Tract
     ## Load Data
     print("Getting median age by census tract (DP05)...")
@@ -73,12 +85,14 @@ def get_acs_lehd(study_state = "KY"):
     ### Create geoid column
     dp05['geoid'] = dp05['fips_code'] + dp05['county'] + dp05['tract']
     dp05['geoid'] = dp05['geoid'].astype('int64')
-    ## Filter for state (MAKE ARGUMENT)
+    ## Filter for state
     dp05 = dp05[dp05['state_abb'].isin([study_state])]
     dp05 = dp05[['geoid', 'median_age']]
+    ## Note: some values that are missing are -666666666.0. Replace with the median (excluding these values)
+    state_median = dp05[dp05["median_age"] >= 0].median()[1]
+    dp05.loc[dp05['median_age'] < 0, 'median_age'] = state_median
     dp05.head()
-
-
+    print(dp05.shape)
 
     # Educational Attainment by Census Tract (Pop. 25+ with Bachelor's Degree/Pop. 25+)
     ## Clean Data
@@ -113,30 +127,36 @@ def get_acs_lehd(study_state = "KY"):
     ## Filter for state (MAKE ARGUMENT)
     s1501 = s1501[s1501['state_abb'].isin([study_state])]
     s1501 = s1501[['geoid', 'pct_bach_25p']]
-    s1501.head()
-
+    print(s1501.shape)
 
     # Get number of vehicles by household income
     print("Getting vehicles by household income...")
-    ## Load data (MAKE ARGUMENT FOR STATE)
-    veh_hh_inc_load = pd.read_csv('../inputs/A112306/A112306_KY.csv')
-    veh_hh_inc_load.head()
+    ## Load data
+    headers = {
+        'accept': 'application/json',
+        'x-api-key': ctpp_key,
+    }
+    params = {
+        'get': 'group(a112306)',
+        'for': 'tract',
+        'in': 'state:' + fips_dict[study_state],
+        'd-for': 'tract',
+        'd-in': 'state:' + fips_dict[study_state],
+        'component': '00',
+        'format': 'list',
+    }
+
+    # Get 2016 since latest data is 2012-16 5yr estimates
+    response = requests.get('https://ctppdata.transportation.org/api/data/2016', params=params, headers=headers).content
+
+    # Grab data from JSON files
+    veh_hh_inc_load_json = json.loads(response.decode('utf-8'))
+    veh_hh_inc_load = pd.DataFrame(veh_hh_inc_load_json['data'])
+
     ## Clean data
-    ### Set first row as column names
-    veh_hh_inc_load.columns = veh_hh_inc_load.iloc[0]
-    ### Drop first row (since it's now column names)
-    veh_hh_inc_load = veh_hh_inc_load.drop(veh_hh_inc_load.index[0])
-    ### Remove the a112306_ substring from colnames
     veh_hh_inc_load.columns = [col.replace('a112306_', '') for col in veh_hh_inc_load.columns]
     veh_hh_inc_load.head()
-    ### Split name column
-    veh_hh_inc_load[['tract_name', 'county_name', 'state_name']] = veh_hh_inc_load.name.str.split(',', expand=True)
-    ### Clear front and rear whitespace
-    for i in ['tract_name', 'county_name', 'state_name']:
-        veh_hh_inc_load[i] = veh_hh_inc_load[i].apply(lambda x: x.strip())
-    veh_hh_inc_load.head()
-    ### Drop name column
-    veh_hh_inc_load = veh_hh_inc_load.drop(columns = ['name'])
+
     ### Keep relevant columns
     low_inc_0 = ['e11', 'e12', 'e13', 'e14', 'e15', 'e16']
     high_inc_0 = ['e17', 'e18']
@@ -162,32 +182,33 @@ def get_acs_lehd(study_state = "KY"):
     ### Keep relevant columns
     veh_hh_inc = veh_hh_inc_load[['geoid', 'low_inc_0', 'hi_inc_0', 'low_inc_1p', 'hi_inc_1p']]
     veh_hh_inc = veh_hh_inc.reset_index(drop=True)
-    ### Remove C1100US string from geoid adn convert to numeric
+    ### Remove C1100US string from geoid and convert to numeric
     veh_hh_inc["geoid"] = veh_hh_inc["geoid"].str.replace("C1100US", "")
     veh_hh_inc[["geoid"]] = veh_hh_inc[["geoid"]].apply(pd.to_numeric)
-    veh_hh_inc.head()
+    print(veh_hh_inc.shape)
 
     # Combine median income, education, and vehicles by household income data
     acs = pd.merge(pd.merge(dp05, s1501 ,on = 'geoid'), veh_hh_inc, on = 'geoid')
     acs.head()
-
+    print(acs.shape)
+    
     # Workplace area characteristics (WAC) data
     ## Load data (MAKE PARAMETER SO THAT IT FILTERS FOR STATE)
     states_abb = list(fips_dict.keys())
     states_abb = [x.lower() for x in states_abb]
-    
+
     print("Getting workplace area characteristics...")
     wac_load = []
     for i in states_abb:
         if i == 'ms':
-            url = 'https://lehd.ces.census.gov/data/lodes/LODES8/' + i + '/wac/' + i + '_wac_S000_JT00_2018.csv.gz'
+            url = 'https://lehd.ces.census.gov/data/lodes/LODES7/' + i + '/wac/' + i + '_wac_S000_JT00_2018.csv.gz'
             response = requests.get(url)    
             content = response.content
             df = pd.read_csv(io.BytesIO(content), sep=",", compression="gzip", index_col=0, quotechar='"')
             df['state_abb'] = 'MS'
             wac_load.append(df)
         else:
-            url = 'https://lehd.ces.census.gov/data/lodes/LODES8/' + i + '/wac/' + i + '_wac_S000_JT00_2019.csv.gz'
+            url = 'https://lehd.ces.census.gov/data/lodes/LODES7/' + i + '/wac/' + i + '_wac_S000_JT00_2019.csv.gz'
             response = requests.get(url)    
             content = response.content
             df = pd.read_csv(io.BytesIO(content), sep=",", compression="gzip", index_col=0, quotechar='"')
@@ -196,15 +217,19 @@ def get_acs_lehd(study_state = "KY"):
     wac_load = pd.concat(wac_load)
     wac_load = wac_load.reset_index()
     ## Rename column so it matches
-    wac_load = wac_load.rename(columns = {'w_geocode' : 'geoid'})
+    wac_load = wac_load.rename(columns = {'w_geocode' : 'block'})
     ## Filter wac_load so it matches argument
     wac_load = wac_load[wac_load['state_abb'].isin([study_state])]
-
+    
+    ## Get tracts from blocks
+    wac_load["geoid"] = wac_load["block"].astype(str).str[:-4].astype(np.int64)
+    print(len(wac_load["geoid"].unique()))
+    
     ## Load Crosswalk Data
     print("Getting crosswalk data and cleaning employment data...")
     xwalk_load = []
     for i in states_abb:
-        url = 'https://lehd.ces.census.gov/data/lodes/LODES8/' + i + '/' + i + '_xwalk.csv.gz'
+        url = 'https://lehd.ces.census.gov/data/lodes/LODES7/' + i + '/' + i + '_xwalk.csv.gz'
         response = requests.get(url)
         content = response.content
         df = pd.read_csv(io.BytesIO(content), sep=",", compression="gzip", index_col=0, quotechar='"', low_memory = False)
@@ -214,7 +239,7 @@ def get_acs_lehd(study_state = "KY"):
     ## Filter xwalk_load so it matches argument
     xwalk_load = xwalk_load[xwalk_load['stusps'].isin([study_state])]
     ## Combine WAC and XWALK data
-    wac_geo = wac_load.merge(xwalk_load, how="left", left_on='geoid', right_on='tabblk2020')
+    wac_geo = wac_load.merge(xwalk_load, how="left", left_on='block', right_on='tabblk2010')
     wac_geo_grouped = wac_geo.groupby(by = 'trct', as_index = False).sum()
     ## Rename columns
     wac_geo_grouped['food_emp'] = wac_geo_grouped['CNS18'] 
@@ -227,7 +252,7 @@ def get_acs_lehd(study_state = "KY"):
     print("Getting land area data from TIGER line files...")
     land_area_load = []
     for i in states_list:
-        url = 'https://www2.census.gov/geo/tiger/TIGER2020/TRACT/tl_2020_' + i + '_tract.zip'
+        url = 'https://www2.census.gov/geo/tiger/TIGER2019/TRACT/tl_2019_' + i + '_tract.zip'
         df = gpd.read_file(url)[['GEOID', 'ALAND', 'STATEFP']]
         land_area_load.append(df)
 
@@ -257,12 +282,43 @@ def get_acs_lehd(study_state = "KY"):
     acs_lehd = pd.merge(acs, lehd, on = 'geoid', how='left')
     acs_lehd.shape
 
-    # Flag for Tourist (TO DO find tourists)
+    # Flag for Tourists
     acs_lehd['tourist'] = 0
 
-    # Flag for Airport (TO DO Find airports)
-    airport_list = [21067004207, 21015980100, 21111980100]
-    acs_lehd['airport'] = np.where(acs_lehd.geoid.isin([airport_list]), 1, 0)
+    # Flag for Airport (these airports are in 2010 Census tracts).
+    # airport_list = [21067004207, # Lexington, KY
+    #                 21015980100, # Northern Kentucky, KY (Cincinnati, OH's airport is in Kentucky)
+    #                 21111980100, # Louisville, KY
+    #                 1073000400, # Birmingham, AL
+    #                 1101005901, # Montgomery, AL
+    #                 1089011200, # Huntsville, AL
+    #                 1097006403, # Mobile, AL
+    #                 12127092500, # Daytona Beach, FL
+    #                 12011080200, # Ft. Lauderdale, FL
+    #                 12071980000, # Fort Myers, FL
+    #                 12091021200, # Fort Walton Beach, FL
+    #                 12001001902, # Gainesville, FL
+    #                 12031010301, # Jacksonville, FL
+    #                 12087972000, # Key West, FL
+    #                 12009064700, # Melbourne, FL
+    #                 12086980500, # Miami, FL
+    #                 12095016802, # Orlando, FL
+    #                 12005000201, # Panama City Beach, FL
+    #                 12033001101, # Pensacola, FL
+    #                 12015010501, # Punta Gorda, FL
+    #                 12117021000, # Orlando-Sanford, FL
+    #                 12115001000, # Sarasota, FL
+    #                 12103024509, # St. Petersburg-Clearwater, FL
+    #                 12073002701, # Tallahasee, FL
+    #                 12057980600, # Tampa, FL
+    #                 12099980500] # West Palm Beach, FL
+    
+    airport_coeffs = pd.read_csv("airports_coeff.csv")
+    airport_coeffs.columns
+    airport_coeffs = airport_coeffs[["geoid", "coeff"]]
+    airport_coeffs = airport_coeffs.rename(columns={'coeff': 'airport'})
+    acs_lehd = pd.merge(acs_lehd, airport_coeffs, on='geoid', how='left')
+    acs_lehd['airport'].fillna(0, inplace=True)
+    # acs_lehd['airport'] = np.where(acs_lehd.geoid.isin(airport_list), 1, 0)
     print("Cleaning acs_lehd combined dataframe...")
     return acs_lehd
-

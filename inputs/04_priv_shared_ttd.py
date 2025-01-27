@@ -1,9 +1,11 @@
 #### Calculate Private and Shared Travel Times and Distances
-# Set working directory (make dynamic later)
+# Set working directory
 import os
-os.chdir('/mnt/e/CR2/Repos/TNC-Demand-Model-Southeast/inputs/')
+os.getcwd()
 
 # Import Libraries
+import warnings
+warnings.simplefilter(action='ignore')
 import numpy as np
 import pandas as pd
 import census
@@ -12,21 +14,33 @@ import io
 import requests
 import fiona
 import geopandas as gpd
+import json
 
-def calc_priv_shared_ttd(study_state):
-    # Read data
-    print("Reading travel time/distance data...")
-    travel_time_distance = pd.read_csv("../outputs/KY_travel_time_distance.csv")
+## Read JSON file
+with open('../model_config.json') as f:
+    model_config = json.load(f)
 
-    # Private travel time is same as travel time
-    print("Calculating private travel time...")
-    travel_time_distance[["private_travel_time"]] = travel_time_distance[["travel_time"]]
+## Pass Parameters
+study_state = model_config["study_state"]
+scenario_name = model_config["scenario_name"]
+fare_adjust = model_config["fare_adjust"]
 
-    # Shared travel time is travel time + 4 min
-    print("Calculating shared travel time...")
-    travel_time_distance[["shared_travel_time"]] = travel_time_distance[["travel_time"]] + 4
+print(study_state)
+print(scenario_name)
+print(fare_adjust)
 
-    # Write out private and shared travel times
-    priv_shared_ttd = travel_time_distance[["geoid_origin", "geoid_dest", "travel_time", "travel_distance", "private_travel_time", "shared_travel_time"]]
-    priv_shared_ttd.to_csv("../outputs/" + study_state + "_priv_shared_ttd.csv", index = False)
-    return priv_shared_ttd
+# Read data
+print("Reading travel time/distance data...")
+travel_time_distance = pd.read_csv("../outputs/" + study_state + "_travel_time_distance.csv")
+
+# Private travel time is same as travel time
+print("Calculating private travel time...")
+travel_time_distance[["private_travel_time"]] = travel_time_distance[["travel_time"]]
+
+# Shared travel time is travel time + 4 min
+print("Calculating shared travel time...")
+travel_time_distance[["shared_travel_time"]] = travel_time_distance[["travel_time"]] + 4
+
+# Write out private and shared travel times
+priv_shared_ttd = travel_time_distance[["geoid_origin", "geoid_dest", "travel_time", "travel_distance", "private_travel_time", "shared_travel_time"]]
+priv_shared_ttd.to_csv("../outputs/" + study_state + "_priv_shared_ttd.csv", index = False)
