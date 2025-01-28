@@ -7,19 +7,9 @@ This model is an application of the TNC Demand Model estimated using Chicago dat
 ## Setup
 The requirements for running this model are the following:
 - Python (v3.9+)
-- R (v4.0+)
 - Julia
 - Windows Subsystem for Linux (WSL, installation instructions: https://learn.microsoft.com/en-us/windows/wsl/install)
 - Census API Key (retrieve key from here: https://api.census.gov/data/key_signup.html)
+- Census Transportation Planning Product (CTPP) API Key (instructions on retrieving key: https://ctppdata.transportation.org/CTPP_DataPortal_UserGuide_051624.pdf)
 
-## Data
-All data is queried from the code except for the households by size, by household income and by vehicle availability (A112306) data. To get this data, perform the following steps.
-1. Navigate to https://ctppdata.transportation.org/#/index.
-2. Under "Keyword Search", type A112306.
-3. Under "Step 3 Select A Geography," select "State-County-Tract."
-4. Select your state, and save the resulting CSV to the `inputs` folder.
-
-## How to run the model
-1. Update `model_config.json`.
-2. Because you're running this from WSL, enter this command to fix the line-break issues: `sed -i 's/\r//g' run_tncse.sh1`
-   
+In Python, create a virtual environment and make sure the following packages are installed: 
