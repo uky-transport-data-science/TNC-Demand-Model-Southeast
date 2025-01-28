@@ -12,4 +12,15 @@ The requirements for running this model are the following:
 - Census API Key (retrieve key from here: https://api.census.gov/data/key_signup.html)
 - Census Transportation Planning Product (CTPP) API Key (instructions on retrieving key: https://ctppdata.transportation.org/CTPP_DataPortal_UserGuide_051624.pdf)
 
-In Python, create a virtual environment and make sure the following packages are installed: 
+In Python, create a virtual environment and make sure the following packages are installed: `os`,
+`warnings`, `numpy`, `pandas`, `census`, `io`, `requests`, `fiona`, `geopandas`, and `json`.
+
+In Julia, install the `OSRM` package (instructions: https://github.com/mattwigway/OSRM.jl)
+
+In a terminal, change your directory to where you put the model. Type in `wsl` to navigage to the Windows Subsystem for Linux interface.
+
+## Running the Model
+1. Open `model_config.json`. Edit the study state (postal abbreviation), fare adjustment (this multiplies the fare by whatever you put here. For example, if you're studying a quarter-fare, change this parameter to 0.25), the scenario name, your Census API key (in quotes), and your CTPP API key (in quotes).
+2. Open `run_tncse.sh`. Edit the second line to change directories to the **inputs** folder.
+3. In the terminal, activate your virtual environment.
+4. Type in `bash run_tncse.sh` and hit enter. The first time you run for a state, it's going to take 3-4 hours to do the routing. But once you run another scenario for the same state, it should take about 15-20 minutes for the model to run.

@@ -38,11 +38,18 @@ df = df[['geoid_origin', 'geoid_dest', 'dest_choice_logsum', 'nt_pred_pickups_lo
 # Apply negative binomial model to get pickups
 print("Applying negative binomial model to get pickups...")
 ### 0.7023981 is the scaling factor.
-df['nt_pickups'] = 0.7023981 * (np.exp(-1.699553*df['airport'] + 0.5047479*df['tourist'] + 0.3486627*df['nt_pred_pickups_log'] + 1.082214*df['dest_choice_logsum'] - 0.0173114*df['median_age'] + 0.0170123*df['pct_bach_25p'] + 0.000000716*df['total_emp_den'] + 0.2991526 - 5.691818))
-df['am_pickups'] = 0.7023981 * (np.exp(-0.7743786*df['airport'] + 0.4779832*df['tourist'] + 0.4050372*df['am_pred_pickups_log'] + 0.6230226*df['dest_choice_logsum'] - 0.0262*df['median_age'] + 0.0143772*df['pct_bach_25p']+ 0.000000498*df['total_emp_den'] + 0.3775664 - 1.946639))
-df['md_pickups'] = 0.7023981 * (np.exp(-0.6405087*df['airport'] + 0.7809523*df['tourist'] + 0.3927277*df['md_pred_pickups_log'] + 0.6977969*df['dest_choice_logsum'] - 0.0208753*df['median_age'] + 0.0123951*df['pct_bach_25p']+ 0.00000161*df['total_emp_den'] + 0.3918755 - 2.551229))
-df['pm_pickups'] = 0.7023981 * (np.exp(-0.4855696*df['airport'] + 0.890186*df['tourist'] + 0.4090155*df['pm_pred_pickups_log'] + 0.8352944*df['dest_choice_logsum'] - 0.0216488*df['median_age'] + 0.0149257*df['pct_bach_25p']+ 0.00000217*df['total_emp_den'] + 0.363544 - 4.089885))
-df['ev_pickups'] = 0.7023981 * (np.exp(0.0188928*df['airport'] + 0.830838*df['tourist'] + 0.3445732*df['ev_pred_pickups_log'] + 0.9817033*df['dest_choice_logsum'] - 0.0215845*df['median_age'] + 0.0199614*df['pct_bach_25p']+ 0.00000224*df['total_emp_den'] + 0.4076045 - 5.265743))
+df['nt_pickups'] = np.exp(-1.699553*df['airport'] + 0.5047479*df['tourist'] + 0.3486627*df['nt_pred_pickups_log'] + 1.082214*df['dest_choice_logsum'] - 0.0173114*df['median_age'] + 0.0170123*df['pct_bach_25p'] + 0.000000716*df['total_emp_den'] + 0.2991526 - 5.691818)
+df['am_pickups'] = np.exp(-0.7743786*df['airport'] + 0.4779832*df['tourist'] + 0.4050372*df['am_pred_pickups_log'] + 0.6230226*df['dest_choice_logsum'] - 0.0262*df['median_age'] + 0.0143772*df['pct_bach_25p']+ 0.000000498*df['total_emp_den'] + 0.3775664 - 1.946639)
+df['md_pickups'] = np.exp(-0.6405087*df['airport'] + 0.7809523*df['tourist'] + 0.3927277*df['md_pred_pickups_log'] + 0.6977969*df['dest_choice_logsum'] - 0.0208753*df['median_age'] + 0.0123951*df['pct_bach_25p']+ 0.00000161*df['total_emp_den'] + 0.3918755 - 2.551229)
+df['pm_pickups'] = np.exp(-0.4855696*df['airport'] + 0.890186*df['tourist'] + 0.4090155*df['pm_pred_pickups_log'] + 0.8352944*df['dest_choice_logsum'] - 0.0216488*df['median_age'] + 0.0149257*df['pct_bach_25p']+ 0.00000217*df['total_emp_den'] + 0.363544 - 4.089885)
+df['ev_pickups'] = np.exp(0.0188928*df['airport'] + 0.830838*df['tourist'] + 0.3445732*df['ev_pred_pickups_log'] + 0.9817033*df['dest_choice_logsum'] - 0.0215845*df['median_age'] + 0.0199614*df['pct_bach_25p']+ 0.00000224*df['total_emp_den'] + 0.4076045 - 5.265743)
+
+print("Applying scalar factor...")
+df['nt_pickups'] = 0.7023981*df['nt_pickups']
+df['am_pickups'] = 0.7023981*df['am_pickups']
+df['md_pickups'] = 0.7023981*df['md_pickups']
+df['pm_pickups'] = 0.7023981*df['pm_pickups']
+df['ev_pickups'] = 0.7023981*df['ev_pickups']
 
 # Get TOD probabilities
 print("Get TOD probabilities...")
