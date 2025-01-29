@@ -1,0 +1,35 @@
+"geoid","airport","state","iata_code","hub","coeff"
+"21067004207 ","Lexington, KY","KY","LEX","S",0.3
+"21015980100 ","Northern Kentucky, KY","KY","CVG","M",0.65
+"21111980100 ","Louisville, KY","KY","SDF","S",0.3
+"1073000400 ","Birmingham, AL","AL","BHM","S",0.3
+"1101005901 ","Montgomery, AL","AL","MGM","N",0.15
+"1045021400","Dothan, AL","AL","DHN","N",0.15
+"1089011200 ","Huntsville, AL","AL","HSV","S",0.3
+"1097006403 ","Mobile, AL","AL","MOB","N",0.15
+"12127092500 ","Daytona Beach, FL","FL","DAB","N",0.15
+"12011080200 ","Ft. Lauderdale, FL","FL","FLL","L",1
+"12071980000 ","Fort Myers, FL","FL","RSW","M",0.65
+"12091021200 ","Fort Walton Beach, FL","FL","VPS","S",0.3
+"12001001902 ","Gainesville, FL","FL","GNV","N",0.15
+"12031010301 ","Jacksonville, FL","FL","JAX","M",0.65
+"12087972000 ","Key West, FL","FL","EYW","S",0.3
+"12009064700 ","Melbourne, FL","FL","MLB","N",0.15
+"12086980500 ","Miami, FL","FL","MIA","L",1
+"12095016802 ","Orlando, FL","FL","MCO","L",1
+"12005000201 ","Panama City Beach, FL","FL","ECP","S",0.3
+"12033001101 ","Pensacola, FL","FL","PNS","S",0.3
+"12015010501 ","Punta Gorda, FL","FL","PGD","S",0.3
+"12117021000 ","Orlando-Sanford, FL","FL","SFB","S",0.3
+"12115001000 ","Sarasota, FL","FL","SRQ","S",0.3
+"12103024509 ","St. Petersburg-Clearwater, FL","FL","PIE","S",0.3
+"12073002701 ","Tallahasee, FL","FL","TLH","N",0.15
+"12057980600 ","Tampa, FL","FL","TPA","L",1
+"12099980500","West Palm Beach, FL","FL","PBI","M",0.65
+"25025981300","Boston, MA","MA","BOS","L",1
+"25001015300","Hyannis, MA","MA","HYA","N",0.15
+"25019950400","Nantucket, MA","MA","ACK","N",0.15
+"25007200400","Martha's Vineyard, MA","MA","MVY","N",0.15
+"25027730700","Worcester, MA","MA","ORH","N",0.15
+"25005650201","New Bedford, MA","MA","EWB","None",0.05
+"25001010100","Provincetown, MA","MA","PVC","N",0.15

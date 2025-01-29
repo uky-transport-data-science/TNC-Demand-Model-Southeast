@@ -1,2 +1,5 @@
 *.csv
+!airports_coeff.csv
 *.bak
+*.pdf
+*.zip
