@@ -249,5 +249,160 @@ ggplot(ma_map_data) +
 
 
 # Trip Origins per Square Mile vs Density ---------------------------------
+## Prepare Observed Data ---------------------------------------------------
+ma_city <- st_read("./inputs/townssurvey_shp/TOWNSSURVEY_POLYM.shp") %>%
+  select(TOWN, AREA_ACRES, AREA_SQMI,geometry) %>%
+  rename(city = TOWN, area_acres = AREA_ACRES, area_sqmi = AREA_SQMI)
+
+ma_city$city <- str_to_title(ma_city$city)
+ma_city$city[ma_city$city=="Manchester-By-The-Sea"]<- "Manchester"
+
+## Population
+ma_pop <- read.csv("./inputs/MA_population_2019.csv")
+ma_pop[166, 3] <- "Manchester"
+ma_pop <- ma_pop %>%
+  select(municipal, pop_est) %>%
+  rename(city = municipal, pop2019 = pop_est)
+
+## Employment
+ma_emp <- read.csv("./inputs/MA_unemployment_2019.csv", check.names = F)
+ma_emp <- ma_emp %>%
+  select(city, employment) %>%
+  rename(emp2019 = employment)
+ma_emp[244, 1]<- "Manchester"
+
+## Link Population
+ma_pop_emp <- ma_pop %>% inner_join(ma_emp, by = "city")
+ma_density_observed <- ma_city %>% inner_join(ma_pop_emp) %>%
+  mutate(density = (pop2019 + emp2019) / area_sqmi) %>%
+  inner_join(observed_ma_origin) %>%
+  mutate(origin_trips_per_sqmi = (origin_trips/252) / area_sqmi) ### Divide by 252 to get daily.
+ma_density_observed$class <- "Observed"
+ma_density_observed_map <- ma_density_observed %>%
+  select(density, geometry, origin_trips_per_sqmi, class)
+
+ma_density_observed_df <- ma_density_observed_map %>%
+  st_drop_geometry()
+
+## Prepare Modeled Data ----------------------------------------------
+ma <- tracts(state = "MA", year = 2019)
+ma$INTPTLAT <- as.numeric(ma$INTPTLAT)
+ma$INTPTLON <- as.numeric(ma$INTPTLON)
+ma$GEOID <- as.numeric(ma$GEOID)
+
+modeled_ma_read <- fread("./inputs/MA_trips_final_long_baseline.csv")
+modeled_ma_origin <- modeled_ma_read %>%
+  select(geoid_origin, trips) %>%
+  group_by(geoid_origin) %>%
+  summarize(origin_trips = sum(trips, na.rm = T)) 
+
+ma_density_modeled <- left_join(ma, modeled_ma_origin, by = c("GEOID" = "geoid_origin")) %>%
+  select(GEOID, origin_trips, ALAND, geometry) %>%
+  rename(geoid = GEOID, aland = ALAND)
+ma_density_modeled$origin_trips[is.na(ma_map_data$origin_trips)] <- 0
+
+ma_density_modeled$area_sqmi <- ma_density_modeled$aland / (2.59*(10^6))
+ma_density_modeled$origin_trips_per_sqmi <- ma_density_modeled$origin_trips / ma_density_modeled$area_sqmi 
+
+## Read in Population and Employment Data from Census/Python
+ma_tract_density <- read.csv("./inputs/MA_tracts_pop_emp_2019.csv")
+ma_density_modeled <- ma_density_modeled %>%
+  left_join(ma_tract_density, by = "geoid") %>%
+  mutate(density = (pop2019 + emp2019) / area_sqmi)
+
+ma_density_modeled$class <- "Modeled"
+ma_density_modeled_map <- ma_density_modeled %>%
+  select(density, geometry, origin_trips_per_sqmi, class)
+
+ma_density_modeled_df <- ma_density_modeled_map %>%
+  st_drop_geometry()
+
+## Combine Modeled and Observed Densities ---------------------------------
+ma_density_combined_df <- rbind(ma_density_modeled_df, ma_density_observed_df)
+ma_density_100000 <- ma_density_combined_df %>%
+  filter(density <= 100000)
+
+## Plot Density Dataframes -------------------------------------------------
+ggplot(ma_density_100000, aes(x=density, y=origin_trips_per_sqmi, color = class)) + 
+  geom_point() +xlab("Density") + ylab("Origin Trips per Square Mile") +
+  ggtitle("Origin Trips per Square Mile vs. Density")
+
+## Map Density from Modeled Data ------------------------------------------
+summary(ma_density_modeled_map$origin_trips_per_sqmi)
+
+ma_density_modeled_map$trip_range <- 
+  case_when(ma_density_modeled_map$origin_trips_per_sqmi <= 10 ~ "Less than 10 trips",
+            ma_density_modeled_map$origin_trips_per_sqmi > 10 & ma_density_modeled_map$origin_trips_per_sqmi <= 40 ~ "10 to 40 trips",
+            ma_density_modeled_map$origin_trips_per_sqmi > 40 & ma_density_modeled_map$origin_trips_per_sqmi <= 70 ~ "40 to 70 trips",
+            ma_density_modeled_map$origin_trips_per_sqmi > 70 & ma_density_modeled_map$origin_trips_per_sqmi <= 200 ~ "70 to 150 trips",
+            ma_density_modeled_map$origin_trips_per_sqmi > 150 & ma_density_modeled_map$origin_trips_per_sqmi <= 400 ~ "150 to 400 trips",
+            ma_density_modeled_map$origin_trips_per_sqmi > 400 & ma_density_modeled_map$origin_trips_per_sqmi <= 1000 ~ "400 to 1000 trips",
+            ma_density_modeled_map$origin_trips_per_sqmi > 1000 & ma_density_modeled_map$origin_trips_per_sqmi <= 10000 ~ "1000 to 10000 trips",
+            ma_density_modeled_map$origin_trips_per_sqmi > 10000 ~ "More than 10000 trips"
+  )
+
+ma_density_modeled_map$trip_range <- factor(ma_density_modeled_map$trip_range, 
+                                 levels=c("Less than 10 trips", 
+                                          "10 to 40 trips",
+                                          "40 to 70 trips", 
+                                          "70 to 150 trips",
+                                          "150 to 400 trips", 
+                                          "400 to 1000 trips",
+                                          "1000 to 10000 trips",
+                                          "More than 10000 trips"))
+
+ggplot(ma_density_modeled_map) +
+  geom_sf(aes(fill = trip_range), 
+          color = "black",
+          linetype = 1,
+          lwd = 0.001) +
+  scale_fill_brewer(palette = "YlOrRd") + ggtitle("Massachusetts Modeled Trips per Square Mile (Daily)") +
+  theme(axis.text.x=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks=element_blank()) + 
+  guides(fill=guide_legend(title="Trips per Square Mile"))
+
+## Map Density from Observed Data ------------------------------------------
+ma_density_observed_map$trip_range <- 
+  case_when(ma_density_observed_map$origin_trips_per_sqmi <= 10 ~ "Less than 10 trips",
+            ma_density_observed_map$origin_trips_per_sqmi > 10 & ma_density_observed_map$origin_trips_per_sqmi <= 40 ~ "10 to 40 trips",
+            ma_density_observed_map$origin_trips_per_sqmi > 40 & ma_density_observed_map$origin_trips_per_sqmi <= 70 ~ "40 to 70 trips",
+            ma_density_observed_map$origin_trips_per_sqmi > 70 & ma_density_observed_map$origin_trips_per_sqmi <= 200 ~ "70 to 150 trips",
+            ma_density_observed_map$origin_trips_per_sqmi > 150 & ma_density_observed_map$origin_trips_per_sqmi <= 400 ~ "150 to 400 trips",
+            ma_density_observed_map$origin_trips_per_sqmi > 400 & ma_density_observed_map$origin_trips_per_sqmi <= 1000 ~ "400 to 1000 trips",
+            ma_density_observed_map$origin_trips_per_sqmi > 1000 & ma_density_observed_map$origin_trips_per_sqmi <= 10000 ~ "1000 to 10000 trips",
+            ma_density_observed_map$origin_trips_per_sqmi > 10000 ~ "More than 10000 trips"
+  )
+
+ma_density_observed_map$trip_range <- factor(ma_density_observed_map$trip_range, 
+                                             levels=c("Less than 10 trips", 
+                                                      "10 to 40 trips",
+                                                      "40 to 70 trips", 
+                                                      "70 to 150 trips",
+                                                      "150 to 400 trips", 
+                                                      "400 to 1000 trips",
+                                                      "1000 to 10000 trips",
+                                                      "More than 10000 trips"))
+
+ggplot(ma_density_observed_map) +
+  geom_sf(aes(fill = trip_range), 
+          color = "black",
+          linetype = 1,
+          lwd = 0.001) +
+  scale_fill_brewer(palette = "YlOrRd") + ggtitle("Massachusetts Observed Trips per Square Mile (Daily)") +
+  theme(axis.text.x=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks=element_blank()) + 
+  guides(fill=guide_legend(title="Trips per Square Mile"))
 
 
+# Create Data for Spatial Join ---------------------------------------------------
+ma_modeled_shp <- ma_density_modeled_map %>%
+  rename(tripssqm = origin_trips_per_sqmi,
+         triprange = trip_range)
+st_write(ma_modeled_shp, "ma_density_modeled.shp")
+
+ma_observed_shp <- ma_density_observed_map %>%
+  rename(tripssqm = origin_trips_per_sqmi,
+         triprange = trip_range)
+st_write(ma_observed_shp, "ma_density_observed.shp")
