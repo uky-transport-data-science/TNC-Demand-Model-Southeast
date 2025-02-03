@@ -45,11 +45,11 @@ df['pm_pickups'] = np.exp(-0.4855696*df['airport'] + 0.890186*df['tourist'] + 0.
 df['ev_pickups'] = np.exp(0.0188928*df['airport'] + 0.830838*df['tourist'] + 0.3445732*df['ev_pred_pickups_log'] + 0.9817033*df['dest_choice_logsum'] - 0.0215845*df['median_age'] + 0.0199614*df['pct_bach_25p']+ 0.00000224*df['total_emp_den'] + 0.4076045 - 5.265743)
 
 print("Applying scalar factor...")
-df['nt_pickups'] = 0.7023981*df['nt_pickups']
-df['am_pickups'] = 0.7023981*df['am_pickups']
-df['md_pickups'] = 0.7023981*df['md_pickups']
-df['pm_pickups'] = 0.7023981*df['pm_pickups']
-df['ev_pickups'] = 0.7023981*df['ev_pickups']
+df['nt_pickups'] = 0.6955789*df['nt_pickups']
+df['am_pickups'] = 0.6955789*df['am_pickups']
+df['md_pickups'] = 0.6955789*df['md_pickups']
+df['pm_pickups'] = 0.6955789*df['pm_pickups']
+df['ev_pickups'] = 0.6955789*df['ev_pickups']
 
 # Get TOD probabilities
 print("Get TOD probabilities...")

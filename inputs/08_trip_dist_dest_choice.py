@@ -38,7 +38,6 @@ dropoffs['pm_pred_dropoffs'] = 308*dropoffs['airport'] + 0.17*dropoffs['food_emp
 dropoffs['ev_pred_dropoffs'] = 0.12*dropoffs['food_emp'] + 0.47*dropoffs['hi_inc_0'] + 0.02*dropoffs['low_inc_0'] + 0.02*dropoffs['low_inc_1p'] + 0.00000694*dropoffs['hi_inc_1p']
 
 dropoffs = dropoffs.rename(columns={"geoid": "geoid_dest"})
-
 # Read in utitlity/probability/logsum data
 print("Reading in utility/probability/logsum data...")
 logsum = pd.read_csv('../outputs/' + study_state + '_mode_choice_utility_logsums_' + scenario_name + '.csv')
@@ -93,6 +92,7 @@ df['am_utility'] = 1*np.log(df['am_pred_dropoffs']) - 0.8*df['internal'] + 0.47*
 df['md_utility'] = 1*np.log(df['md_pred_dropoffs']) - 1.22*df['internal'] + 0.48*df['tourist'] - 3.19*df['airport'] + 0.08*df['mode_logsum_airport'] + 0.96*df['mode_logsum_no_airport']
 df['pm_utility'] = 1*np.log(df['pm_pred_dropoffs']) - 1.20*df['internal'] + 0.23*df['tourist'] - 2.30*df['airport'] + 0.12*df['mode_logsum_airport'] + 1*df['mode_logsum_no_airport']
 df['ev_utility'] = 1*np.log(df['ev_pred_dropoffs']) - 1.06*df['internal'] + 0.3*df['tourist'] - 2.53*df['airport'] + 0.16*df['mode_logsum_airport'] + 0.91*df['mode_logsum_no_airport']
+
 
 ### Exponentiated utility by TOD
 print("Calculating exponentiated utility by TOD...")

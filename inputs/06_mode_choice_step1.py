@@ -73,6 +73,10 @@ def get_median_income(study_state):
     median_inc.loc[:, "B19013_001E"] = median_inc["B19013_001E"]/10000 # convert to units of $10,000
     median_inc = median_inc.rename(columns={'B19013_001E': 'median_income_origin'})
     median_inc[["median_income_dest"]] = median_inc[["median_income_origin"]]
+    ## Note: some values that are missing are -666666666.0. Replace with the median (excluding these values)
+    state_median = median_inc["median_income_dest"][median_inc["median_income_dest"] >= 0].median()
+    median_inc.loc[median_inc['median_income_dest'] < 0, 'median_income_dest'] = state_median
+    median_inc.loc[median_inc['median_income_origin'] < 0, 'median_income_origin'] = state_median
     return median_inc
 
 
@@ -148,6 +152,10 @@ utility.loc[:, 'shared_prob'] = 1 - utility['private_prob']
 print("Calculating logsums...")
 utility['mode_logsum'] = np.log((np.exp(utility['shared_utility'])) + (np.exp(utility['private_utility'])))
 
+### Check these
+#df = utility[utility['geoid_origin'] == 21111980100]
+#np.exp(df['shared_utility'])
+#np.exp(df['private_utility'])
 # Used in Destination Choice: Break out utilities by whether they are airport trips or not.
 print("Calculating airport logsums...")
 utility['mode_logsum_airport'] = utility['mode_logsum'] * utility['airport']

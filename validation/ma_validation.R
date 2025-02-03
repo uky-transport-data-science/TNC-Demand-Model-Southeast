@@ -13,7 +13,7 @@ options(scipen = 999)
 
 # Load in Data ------------------------------------------------------------
 ## Modeled Output
-modeled_ma_read <- fread("./inputs/MA_trips_final_long_baseline.csv")
+modeled_ma_read <- fread("../outputs/MA_trips_final_long_baseline.csv")
 
 ## Observed Output
 observed_ma_read <- read.xlsx("./inputs/MA_observed_2019.xlsx", sheet = 1)
@@ -52,7 +52,8 @@ city_county$county <- str_to_title(city_county$county)
 city_county$county <- paste(city_county$county, "County", sep = " ")
 
 ## Clean Modeled Data ------------------------------------------------------
-head(modeled_ma_read)
+#head(modeled_ma_read)
+#modeled_ma_read$trips[!is.finite(modeled_ma_read$trips)] <- 0
 modeled_ma_origin <- modeled_ma_read %>%
   select(geoid_origin, trips) %>%
   group_by(geoid_origin) %>%
@@ -113,7 +114,7 @@ validation_ma <- inner_join(modeled_ma, observed_ma, by = "county")
 validation_ma$origin_trips_modeled <- validation_ma$origin_trips_modeled*252
 validation_ma$dest_trips_modeled <- validation_ma$dest_trips_modeled*252
 
-rm(list=setdiff(ls(), c("validation_ma", "observed_ma", "modeled_ma")))
+#rm(list=setdiff(ls(), c("validation_ma", "observed_ma", "modeled_ma")))
 
 
 # Validation Plots --------------------------------------------------------

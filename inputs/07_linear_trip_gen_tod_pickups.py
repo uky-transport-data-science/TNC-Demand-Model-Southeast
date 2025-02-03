@@ -47,6 +47,7 @@ print("Get log pickups...")
 for i in ['nt_pred_pickups', 'am_pred_pickups', 'md_pred_pickups', 'pm_pred_pickups', 'ev_pred_pickups', 'pred_pickups']:
     pickups[i + "_log"] = np.where(pickups[i] == 0, 0, np.log(pickups[i]))
 
+
 # Write to CSV
 print("Writing to CSV...")
 pickups = pickups[['geoid_origin', 'am_pred_pickups', 'nt_pred_pickups', 'md_pred_pickups', 'pm_pred_pickups', 'ev_pred_pickups', 'pred_pickups',  'nt_pred_pickups_log', 'am_pred_pickups_log', 'md_pred_pickups_log','pm_pred_pickups_log', 'ev_pred_pickups_log', 'pred_pickups_log']]

@@ -314,7 +314,6 @@ def get_acs_lehd(study_state):
     #                 12099980500] # West Palm Beach, FL
     
     airport_coeffs = pd.read_csv("airports_coeff.csv")
-    airport_coeffs.columns
     airport_coeffs = airport_coeffs[["geoid", "coeff"]]
     airport_coeffs = airport_coeffs.rename(columns={'coeff': 'airport'})
     acs_lehd = pd.merge(acs_lehd, airport_coeffs, on='geoid', how='left')

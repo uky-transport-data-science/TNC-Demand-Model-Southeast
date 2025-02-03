@@ -101,7 +101,9 @@ def get_household_density(study_state):
 # Read in Data
 print("Reading in negative binomial trip data..")
 trips = pd.read_csv('../outputs/' + study_state + '_neg_bin_pred_trips_' + scenario_name + '.csv')
-
+trips.columns
+#sdf_check = trips[trips['geoid_origin'] == 21111980100]
+#sdf_check.to_csv("../outputs/sdf_check.csv", index = False)
 print("Reading in travel time data..")
 traveltime = pd.read_csv('../outputs/' + study_state + '_fares_and_times_' + scenario_name + '.csv')
 traveltime = traveltime[['geoid_origin', 'geoid_dest', 'private_travel_time', 'private_fares', 'shared_travel_time', 'shared_fares']]
@@ -201,6 +203,7 @@ for time in time_of_day:
     matched_trips["unmatched_" + time + "_trips"] = matched_trips["shared_" + time + "_trips"] * matched_trips["unmatched_prob"]
 matched_trips = matched_trips.drop(["geoid_x", "geoid_y"], axis = "columns")
 trips_wide = matched_trips
+trips_wide.replace([np.inf, -np.inf], 0, inplace=True)
 print("Creating wide dataframe and writing out to CSV...")
 trips_wide.to_csv("../outputs/" + study_state + "_trips_final_wide_" + scenario_name + ".csv", index = False)
 
@@ -248,6 +251,7 @@ travel_distance = pd.read_csv("../outputs/" + study_state + "_travel_time_distan
 travel_distance = travel_distance[["geoid_origin", "geoid_dest",  "travel_distance"]]
 trips_long = pd.merge(trips_long, travel_distance, on=['geoid_origin', 'geoid_dest'], how='left')
 trips_long['shared'] = np.where(trips_long['trip_type'] == "private", "private", "shared")
+trips_long.replace([np.inf, -np.inf], 0, inplace=True)
 trips_long.to_csv("../outputs/" + study_state + "_trips_final_long_" + scenario_name + ".csv", index = False)
 
 ## Delete files
