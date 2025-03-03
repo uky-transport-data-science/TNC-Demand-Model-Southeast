@@ -33,6 +33,7 @@ c = Census(census_key)
 AL = '01'
 FL = '12'
 GA = '13'
+IL = '17'
 KY = '21'
 MA = '25'
 MS = '28'
@@ -40,12 +41,13 @@ NC = '37'
 SC = '45'
 TN = '47'
 
-states_list = [AL, FL, GA, KY, MA, MS, NC, SC, TN]
+states_list = [AL, FL, GA, IL, KY, MA, MS, NC, SC, TN]
 states_string = ','.join(states_list)
 
 fips_dict =  {'AL':'01',
               'FL':'12',
               'GA':'13',
+              'IL':'17',
               'KY':'21',
               'MA':'25',
               'MS':'28',
@@ -64,7 +66,10 @@ def get_median_income(study_state):
     # Median Income by Census Tract
     ## Load Data
     print("Getting median income by Census tract (B19013)...")
-    b19013_load = pd.DataFrame(c.acs5.state_county_tract(fields = ('NAME', 'B19013_001E'), state_fips = fips_dict[study_state], county_fips = "*", tract = "*", year = 2019))
+    if study_state == "IL":
+        b19013_load = pd.DataFrame(c.acs5.state_county_tract(fields = ('NAME', 'B19013_001E'), state_fips = fips_dict[study_state], county_fips = "031", tract = "*", year = 2019))
+    else:
+        b19013_load = pd.DataFrame(c.acs5.state_county_tract(fields = ('NAME', 'B19013_001E'), state_fips = fips_dict[study_state], county_fips = "*", tract = "*", year = 2019))
     ## Create geoid_origin and geoid_dest columns
     b19013_load.loc[:, "geoid_origin"] = b19013_load['state'] + b19013_load['county'] + b19013_load['tract']
     b19013_load.loc[:, "geoid_dest"] = b19013_load['state'] + b19013_load['county'] + b19013_load['tract']
@@ -152,10 +157,6 @@ utility.loc[:, 'shared_prob'] = 1 - utility['private_prob']
 print("Calculating logsums...")
 utility['mode_logsum'] = np.log((np.exp(utility['shared_utility'])) + (np.exp(utility['private_utility'])))
 
-### Check these
-#df = utility[utility['geoid_origin'] == 21111980100]
-#np.exp(df['shared_utility'])
-#np.exp(df['private_utility'])
 # Used in Destination Choice: Break out utilities by whether they are airport trips or not.
 print("Calculating airport logsums...")
 utility['mode_logsum_airport'] = utility['mode_logsum'] * utility['airport']

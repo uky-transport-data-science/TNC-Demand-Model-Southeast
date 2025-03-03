@@ -30,11 +30,13 @@ fare_adjust = model_config["fare_adjust"]
 # Get linear predicted pickups by TOD
 print("Get linear predicted pickups by TOD...")
 pickups = acs_lehd.get_acs_lehd(study_state)
-pickups['nt_pred_pickups'] = 260*pickups['airport'] + 0.13*pickups['food_emp'] + 0.01*pickups['hi_inc_0'] +  0.02*pickups['low_inc_0']
-pickups['am_pred_pickups'] = 130*pickups['airport'] + 0.05*pickups['food_emp'] + 0.02*pickups['retail_emp'] + 0.0000952*pickups['other_emp'] + 0.37*pickups['hi_inc_0'] +  0.02*pickups['low_inc_0'] + 0.02*pickups['low_inc_1p'] + 0.0000136*pickups['hi_inc_1p']
-pickups['md_pred_pickups'] = 921*pickups['airport'] + 0.15*pickups['food_emp'] + 0.07*pickups['retail_emp'] + 0.01*pickups['other_emp'] + 0.63*pickups['hi_inc_0'] +  0.03*pickups['low_inc_0'] + 0.02*pickups['low_inc_1p'] + 0.0000243*pickups['hi_inc_1p']
-pickups['pm_pred_pickups'] = 213*pickups['airport'] + 0.11*pickups['food_emp'] + 0.04*pickups['retail_emp'] + 0.01*pickups['other_emp'] + 0.44*pickups['hi_inc_0'] +  0.01*pickups['low_inc_0'] + 0.01*pickups['low_inc_1p'] + 0.0000164*pickups['hi_inc_1p']
-pickups['ev_pred_pickups'] = 476*pickups['airport'] + 0.18*pickups['food_emp'] + 0.00273*pickups['other_emp'] + 0.35*pickups['hi_inc_0'] +  0.01*pickups['low_inc_0'] + 0.01*pickups['low_inc_1p'] + 0.00000446*pickups['hi_inc_1p']
+### Adjusting airport pickups by e^(coefficient for airport in negative binomial for pickups, lines 40-44 in 09).
+## Update 2/17: updating coefficients to account for rounding. https://github.com/alex-mucci/TNC-Demand-Model-Application/blob/main/Apply_Trip_Generation.py
+pickups['nt_pred_pickups'] = 260.4035*pickups['airport'] +  0.1251485*pickups['food_emp'] + 0.1456829*pickups['hi_inc_0'] +  0.0055992*pickups['low_inc_0'] + 0.0206288*pickups['low_inc_1p']
+pickups['am_pred_pickups'] = 130.2076*pickups['airport'] + 53.18332*pickups['tourist'] +0.0473473*pickups['food_emp'] + 0.015827*pickups['retail_emp'] + 0.0000952*pickups['other_emp'] + 0.37*pickups['hi_inc_0'] +  0.0174729*pickups['low_inc_0'] + 0.0176063*pickups['low_inc_1p'] + 0.0000136*pickups['hi_inc_1p']
+pickups['md_pred_pickups'] = 921.3699*pickups['airport'] + 173.4502*pickups['tourist'] + 0.1485942*pickups['food_emp'] + 0.0653171*pickups['retail_emp'] + 0.0075034*pickups['other_emp'] + 0.6336939*pickups['hi_inc_0'] +  0.0275177*pickups['low_inc_0'] + 0.0235304*pickups['low_inc_1p'] + 0.0000243*pickups['hi_inc_1p']
+pickups['pm_pred_pickups'] = 213.2107*pickups['airport'] + 102.1033*pickups['tourist'] + 0.1094589*pickups['food_emp'] + 0.0385694*pickups['retail_emp'] + 0.0079508*pickups['other_emp'] + 0.44*pickups['hi_inc_0'] + 0.0060732*pickups['low_inc_0'] + 0.0072242*pickups['low_inc_1p'] + 0.0000164*pickups['hi_inc_1p']
+pickups['ev_pred_pickups'] = 476.2219*pickups['airport'] + 0.1846295*pickups['food_emp'] + 0.00273*pickups['other_emp'] + 0.35*pickups['hi_inc_0'] +  0.0070386*pickups['low_inc_0'] + 0.0076753*pickups['low_inc_1p'] + 0.00000446*pickups['hi_inc_1p']
 
 # Sum pickups by TOD to get total pickups
 pickups['pred_pickups'] =  pickups[['am_pred_pickups', 'nt_pred_pickups', 'md_pred_pickups', 'pm_pred_pickups', 'ev_pred_pickups']].sum(axis=1)

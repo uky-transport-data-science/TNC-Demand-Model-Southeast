@@ -32,6 +32,7 @@ fare_adjust = model_config["fare_adjust"]
 AL = '01'
 FL = '12'
 GA = '13'
+IL = '17'
 KY = '21'
 MA = '25'
 MS = '28'
@@ -39,12 +40,13 @@ NC = '37'
 SC = '45'
 TN = '47'
 
-states_list = [AL, FL, GA, KY, MA, MS, NC, SC, TN]
+states_list = [AL, FL, GA, IL, KY, MA, MS, NC, SC, TN]
 states_string = ','.join(states_list)
 
 fips_dict =  {'AL':'01',
               'FL':'12',
               'GA':'13',
+              'IL':'17',
               'KY':'21',
               'MA':'25',
               'MS':'28',
@@ -80,6 +82,13 @@ else:
     centroid = centroid[centroid['state_abb'].isin([study_state])]
     ## Convert geoid from object to int64
     centroid['geoid'] = centroid['geoid'].astype(np.int64)
+    ## Only Cook County for Illinois 
+    if study_state == "IL":
+        centroid['fips_county'] = centroid['geoid'].astype(str).str[:5]
+        centroid = centroid[(centroid['fips_county'] == '17031')]
+        centroid = centroid.drop(columns=['fips_county'])
+    else:
+         pass
 
     # Get Centroids
     print("Creating centroids...")

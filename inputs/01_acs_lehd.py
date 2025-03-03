@@ -34,6 +34,7 @@ c = Census(census_key)
 AL = '01'
 FL = '12'
 GA = '13'
+IL = '17'
 KY = '21'
 MA = '25'
 MS = '28'
@@ -41,12 +42,13 @@ NC = '37'
 SC = '45'
 TN = '47'
 
-states_list = [AL, FL, GA, KY, MA, MS, NC, SC, TN]
+states_list = [AL, FL, GA, IL, KY, MA, MS, NC, SC, TN]
 states_string = ','.join(states_list)
 
 fips_dict =  {'AL':'01',
               'FL':'12',
               'GA':'13',
+              'IL':'17',
               'KY':'21',
               'MA':'25',
               'MS':'28',
@@ -60,7 +62,14 @@ def get_acs_lehd(study_state):
     # Median Age by Census Tract
     ## Load Data
     print("Getting median age by census tract (DP05)...")
-    dp05_load = pd.DataFrame(c.acs5dp.state_county_tract(fields = ('NAME', 'DP05_0018E'),
+    if study_state == "IL":
+        dp05_load = pd.DataFrame(c.acs5dp.state_county_tract(fields = ('NAME', 'DP05_0018E'),
+                                        state_fips = '17',
+                                        county_fips = "031",
+                                        tract = "*",
+                                        year = 2019))
+    else:   
+        dp05_load = pd.DataFrame(c.acs5dp.state_county_tract(fields = ('NAME', 'DP05_0018E'),
                                         state_fips = states_string,
                                         county_fips = "*",
                                         tract = "*",
@@ -96,11 +105,18 @@ def get_acs_lehd(study_state):
 
     # Educational Attainment by Census Tract (Pop. 25+ with Bachelor's Degree/Pop. 25+)
     ## Clean Data
-    s1501_load = pd.DataFrame(c.acs5st.state_county_tract(fields = ('NAME', 'S1501_C01_006E', 'S1501_C01_012E'),
-                                        state_fips = states_string,
-                                        county_fips = "*",
+    if study_state == "IL":
+        s1501_load = pd.DataFrame(c.acs5st.state_county_tract(fields = ('NAME', 'S1501_C01_006E', 'S1501_C01_012E'),
+                                        state_fips = '17',
+                                        county_fips = "031",
                                         tract = "*",
                                         year = 2019))
+    else:
+        s1501_load = pd.DataFrame(c.acs5st.state_county_tract(fields = ('NAME', 'S1501_C01_006E', 'S1501_C01_012E'),
+                                            state_fips = states_string,
+                                            county_fips = "*",
+                                            tract = "*",
+                                            year = 2019))
     s1501_load.head()
     print("Getting educational attainment  by census tract (S1501)...")
     ### Split name column
@@ -185,10 +201,14 @@ def get_acs_lehd(study_state):
     ### Remove C1100US string from geoid and convert to numeric
     veh_hh_inc["geoid"] = veh_hh_inc["geoid"].str.replace("C1100US", "")
     veh_hh_inc[["geoid"]] = veh_hh_inc[["geoid"]].apply(pd.to_numeric)
+    if study_state == "IL":
+        veh_hh_inc = veh_hh_inc[veh_hh_inc['geoid'].between(17031000000, 17031999999)]
+    else:
+        pass
     print(veh_hh_inc.shape)
 
     # Combine median income, education, and vehicles by household income data
-    acs = pd.merge(pd.merge(dp05, s1501 ,on = 'geoid'), veh_hh_inc, on = 'geoid')
+    acs = pd.merge(pd.merge(dp05, s1501, on = 'geoid'), veh_hh_inc, on = 'geoid')
     acs.head()
     print(acs.shape)
     
@@ -208,7 +228,7 @@ def get_acs_lehd(study_state):
             df['state_abb'] = 'MS'
             wac_load.append(df)
         else:
-            url = 'https://lehd.ces.census.gov/data/lodes/LODES7/' + i + '/wac/' + i + '_wac_S000_JT00_2019.csv.gz'
+            url = 'https://lehd.ces.census.gov/data/lodes/LODES7/' + i + '/wac/' + i + '_wac_S000_JT00_2018.csv.gz'
             response = requests.get(url)    
             content = response.content
             df = pd.read_csv(io.BytesIO(content), sep=",", compression="gzip", index_col=0, quotechar='"')
@@ -216,6 +236,7 @@ def get_acs_lehd(study_state):
             wac_load.append(df)
     wac_load = pd.concat(wac_load)
     wac_load = wac_load.reset_index()
+
     ## Rename column so it matches
     wac_load = wac_load.rename(columns = {'w_geocode' : 'block'})
     ## Filter wac_load so it matches argument
@@ -283,7 +304,11 @@ def get_acs_lehd(study_state):
     acs_lehd.shape
 
     # Flag for Tourists
-    acs_lehd['tourist'] = 0
+    tourist_list = [17031081402,17031330100,17031841000]
+    if study_state == "IL":
+        acs_lehd['tourist'] = np.where(acs_lehd.geoid.isin(tourist_list), 1, 0)
+    else:
+        acs_lehd['tourist'] = 0
 
     # Flag for Airport (these airports are in 2010 Census tracts).
     # airport_list = [21067004207, # Lexington, KY

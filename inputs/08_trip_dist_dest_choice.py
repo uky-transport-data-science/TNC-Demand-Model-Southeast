@@ -33,9 +33,9 @@ print("Getting linear predicted dropoffs by TOD...")
 dropoffs = acs_lehd.get_acs_lehd(study_state)
 dropoffs['nt_pred_dropoffs'] = 545*dropoffs['airport'] + 0.07*dropoffs['food_emp'] + 0.00*dropoffs['other_emp'] + 0.28*dropoffs['hi_inc_0'] +  0.02*dropoffs['low_inc_0'] + 0.02*dropoffs['low_inc_1p'] + 0.00000454*dropoffs['hi_inc_1p']
 dropoffs['am_pred_dropoffs'] = 616*dropoffs['airport'] + 0.04*dropoffs['food_emp'] + 0.02*dropoffs['retail_emp'] + 0.001*dropoffs['other_emp'] + 0.29*dropoffs['hi_inc_0'] + 0.0000102*dropoffs['hi_inc_1p']
-dropoffs['md_pred_dropoffs'] = 1501*dropoffs['airport'] + 0.20*dropoffs['food_emp'] + 0.08*dropoffs['retail_emp'] + 0.01*dropoffs['other_emp'] + 0.51*dropoffs['hi_inc_0'] + 0.01*dropoffs['low_inc_0'] + 0.01*dropoffs['low_inc_1p'] + 0.0000313*dropoffs['hi_inc_1p']
-dropoffs['pm_pred_dropoffs'] = 308*dropoffs['airport'] + 0.17*dropoffs['food_emp'] + 0.001*dropoffs['retail_emp'] + 0.00*dropoffs['other_emp'] + 0.4*dropoffs['hi_inc_0'] + 0.02*dropoffs['low_inc_0'] + 0.01*dropoffs['low_inc_1p'] + 0.00000658*dropoffs['hi_inc_1p']
-dropoffs['ev_pred_dropoffs'] = 0.12*dropoffs['food_emp'] + 0.47*dropoffs['hi_inc_0'] + 0.02*dropoffs['low_inc_0'] + 0.02*dropoffs['low_inc_1p'] + 0.00000694*dropoffs['hi_inc_1p']
+dropoffs['md_pred_dropoffs'] = 1501*dropoffs['airport'] + 77*dropoffs['tourist'] + 0.20*dropoffs['food_emp'] + 0.08*dropoffs['retail_emp'] + 0.01*dropoffs['other_emp'] + 0.51*dropoffs['hi_inc_0'] + 0.01*dropoffs['low_inc_0'] + 0.01*dropoffs['low_inc_1p'] + 0.0000313*dropoffs['hi_inc_1p']
+dropoffs['pm_pred_dropoffs'] = 308*dropoffs['airport'] + 56*dropoffs['tourist'] * 0.17*dropoffs['food_emp'] + 0.001*dropoffs['retail_emp'] + 0.00*dropoffs['other_emp'] + 0.4*dropoffs['hi_inc_0'] + 0.02*dropoffs['low_inc_0'] + 0.01*dropoffs['low_inc_1p'] + 0.00000658*dropoffs['hi_inc_1p']
+dropoffs['ev_pred_dropoffs'] = 0.12*dropoffs['food_emp'] + 62*dropoffs['tourist'] + 0.47*dropoffs['hi_inc_0'] + 0.02*dropoffs['low_inc_0'] + 0.02*dropoffs['low_inc_1p'] + 0.00000694*dropoffs['hi_inc_1p']
 
 dropoffs = dropoffs.rename(columns={"geoid": "geoid_dest"})
 # Read in utitlity/probability/logsum data
@@ -88,10 +88,10 @@ df['internal'] = np.where(df['geoid_origin'] == df['geoid_dest'], 1, 0)
 ### Destination Choice Utility
 print("Calculating destination choice utility by TOD...")
 df['nt_utility'] = 1*np.log(df['nt_pred_dropoffs']) - 0.07*df['internal'] + 0.49*df['tourist'] - 2.81*df['airport'] + 0*df['mode_logsum_airport'] + 1*df['mode_logsum_no_airport']
-df['am_utility'] = 1*np.log(df['am_pred_dropoffs']) - 0.8*df['internal'] + 0.47*df['tourist'] - 2.53*df['airport'] + 0.15*df['mode_logsum_airport'] + 0.85*df['mode_logsum_no_airport']
-df['md_utility'] = 1*np.log(df['md_pred_dropoffs']) - 1.22*df['internal'] + 0.48*df['tourist'] - 3.19*df['airport'] + 0.08*df['mode_logsum_airport'] + 0.96*df['mode_logsum_no_airport']
-df['pm_utility'] = 1*np.log(df['pm_pred_dropoffs']) - 1.20*df['internal'] + 0.23*df['tourist'] - 2.30*df['airport'] + 0.12*df['mode_logsum_airport'] + 1*df['mode_logsum_no_airport']
-df['ev_utility'] = 1*np.log(df['ev_pred_dropoffs']) - 1.06*df['internal'] + 0.3*df['tourist'] - 2.53*df['airport'] + 0.16*df['mode_logsum_airport'] + 0.91*df['mode_logsum_no_airport']
+df['am_utility'] = 1*np.log(df['am_pred_dropoffs']) - 0.8*df['internal'] + 0.47*df['tourist'] - 2.18*df['airport'] + 0.15*df['mode_logsum_airport'] + 0.85*df['mode_logsum_no_airport']
+df['md_utility'] = 1*np.log(df['md_pred_dropoffs']) - 1.22*df['internal'] + 0.48*df['tourist'] - 2.84*df['airport'] + 0.08*df['mode_logsum_airport'] + 0.96*df['mode_logsum_no_airport']
+df['pm_utility'] = 1*np.log(df['pm_pred_dropoffs']) - 1.20*df['internal'] + 0.23*df['tourist'] - 1.95*df['airport'] + 0.12*df['mode_logsum_airport'] + 0.72*df['mode_logsum_no_airport']
+df['ev_utility'] = 1*np.log(df['ev_pred_dropoffs']) - 1.06*df['internal'] + 0.3*df['tourist'] - 2.18*df['airport'] + 0.16*df['mode_logsum_airport'] + 0.91*df['mode_logsum_no_airport']
 
 
 ### Exponentiated utility by TOD

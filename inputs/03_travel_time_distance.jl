@@ -57,6 +57,19 @@ elseif study_state == "MA"
         osrm_path = joinpath(root, "massachusetts-latest.osrm")
         osrm = OSRMInstance(osrm_path, OSRM.Algorithm.MultiLevelDijkstra)
     end
+elseif study_state == "IL"
+    if isfile(joinpath(root, "illinois-latest.osrm.fileIndex"))
+        println("Network file exists...")
+        osrm_path = joinpath(root, "illinois-latest.osrm")
+        osrm = OSRMInstance(osrm_path, OSRM.Algorithm.MultiLevelDijkstra)
+    else
+        println("Downloading files and building network..")
+        Downloads.download("https://download.geofabrik.de/north-america/us/illinois-latest.osm.pbf", joinpath(root, "illinois-latest.osm.pbf"))
+        osm_path = joinpath(root, "illinois-latest.osm.pbf")
+        OSRM.build(osm_path, OSRM.Profiles.Car, OSRM.Algorithm.MultiLevelDijkstra)
+        osrm_path = joinpath(root, "illinois-latest.osrm")
+        osrm = OSRMInstance(osrm_path, OSRM.Algorithm.MultiLevelDijkstra)
+    end
 elseif study_state == "MS"
     if isfile(joinpath(root, "mississippi-latest.osrm.fileIndex"))
         println("Network file exists...")

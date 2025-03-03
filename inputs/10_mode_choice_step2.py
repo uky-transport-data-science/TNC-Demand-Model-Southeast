@@ -35,6 +35,7 @@ c = Census(census_key)
 AL = '01'
 FL = '12'
 GA = '13'
+IL = '17'
 KY = '21'
 MA = '25'
 MS = '28'
@@ -42,12 +43,13 @@ NC = '37'
 SC = '45'
 TN = '47'
 
-states_list = [AL, FL, GA, KY, MA, MS, NC, SC, TN]
+states_list = [AL, FL, GA, IL, KY, MA, MS, NC, SC, TN]
 states_string = ','.join(states_list)
 
 fips_dict =  {'AL':'01',
               'FL':'12',
               'GA':'13',
+              'IL':'17',
               'KY':'21',
               'MA':'25',
               'MS':'28',
@@ -59,11 +61,18 @@ fips_df = pd.DataFrame(fips_dict.items(), columns=['state_abb', 'fips_code'])
 
 def get_household_density(study_state):
     print("Getting household density per Census tract (S1901)...")
-    s1901_load = pd.DataFrame(c.acs5st.state_county_tract(fields = ('NAME', 'S1901_C01_001E'),
-                                        state_fips = states_string,
-                                        county_fips = "*",
+    if study_state == "IL":
+        s1901_load = pd.DataFrame(c.acs5st.state_county_tract(fields = ('NAME', 'S1901_C01_001E'),
+                                        state_fips = "17",
+                                        county_fips = "031",
                                         tract = "*",
                                         year = 2019))
+    else:
+        s1901_load = pd.DataFrame(c.acs5st.state_county_tract(fields = ('NAME', 'S1901_C01_001E'),
+                                            state_fips = states_string,
+                                            county_fips = "*",
+                                            tract = "*",
+                                            year = 2019))
     s1901_load["geoid"] = s1901_load["state"] + s1901_load["county"] + s1901_load["tract"]
     # Convert GEOID to float.
     s1901_load["geoid"] = s1901_load.geoid.astype(float)
@@ -127,34 +136,6 @@ print("Merging trips and travel time data...")
 trips = pd.merge(trips, traveltime, how = "left", on = ["geoid_origin", "geoid_dest"])
 
 # Airport indicator
-## These are the airports in Kentucky.
-# airport_list = [21067004207, # Lexington, KY
-#                     21015980100, # Northern Kentucky, KY (Cincinnati, OH's airport is in Kentucky)
-#                     21111980100, # Louisville, KY
-#                     1073000400, # Birmingham, AL
-#                     1101005901, # Montgomery, AL
-#                     1089011200, # Huntsville, AL
-#                     1097006403, # Mobile, AL
-#                     12127092500, # Daytona Beach, FL
-#                     12011080200, # Ft. Lauderdale, FL
-#                     12071980000, # Fort Myers, FL
-#                     12091021200, # Fort Walton Beach, FL
-#                     12001001902, # Gainesville, FL
-#                     12031010301, # Jacksonville, FL
-#                     12087972000, # Key West, FL
-#                     12009064700, # Melbourne, FL
-#                     12086980500, # Miami, FL
-#                     12095016802, # Orlando, FL
-#                     12005000201, # Panama City Beach, FL
-#                     12033001101, # Pensacola, FL
-#                     12015010501, # Punta Gorda, FL
-#                     12117021000, # Orlando-Sanford, FL
-#                     12115001000, # Sarasota, FL
-#                     12103024509, # St. Petersburg-Clearwater, FL
-#                     12073002701, # Tallahasee, FL
-#                     12057980600, # Tampa, FL
-#                     12099980500] # West Palm Beach, FL
-# trips.loc[:, 'airport'] = np.where(trips['geoid_origin'].isin(airport_list), 1, np.where(trips['geoid_dest'].isin(airport_list), 1, 0))
 airport_coeffs = pd.read_csv("airports_coeff.csv")
 airport_coeffs = airport_coeffs[["geoid", "coeff"]]
 airport_coeffs = airport_coeffs.rename(columns={'coeff': 'airport_origin'})
