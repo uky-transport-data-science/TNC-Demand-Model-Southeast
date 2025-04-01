@@ -16,7 +16,7 @@ import fiona
 import geopandas as gpd
 acs_lehd = __import__('01_acs_lehd')
 import json
-
+pd.set_option('display.max_columns', None)
 ## Read JSON file
 with open('../model_config.json') as f:
     model_config = json.load(f)
@@ -30,7 +30,15 @@ ctpp_key = model_config["ctpp_key"]
 
 # Get linear predicted dropoffs by TOD
 print("Getting linear predicted dropoffs by TOD...")
-dropoffs = acs_lehd.get_acs_lehd(study_state)
+#dropoffs = acs_lehd.get_acs_lehd(study_state)
+dropoffs =  pd.read_csv("../outputs/" + study_state + "_acs_lehd_" + scenario_name + ".csv")
+
+for col in dropoffs.select_dtypes(include=['object']).columns:
+    try:
+        dropoffs[col] = pd.to_numeric(dropoffs[col], errors='coerce')
+    except ValueError:
+        print(f"Could not convert column '{col}' to float.")
+
 dropoffs['nt_pred_dropoffs'] = 545*dropoffs['airport'] + 0.07*dropoffs['food_emp'] + 0.00*dropoffs['other_emp'] + 0.28*dropoffs['hi_inc_0'] +  0.02*dropoffs['low_inc_0'] + 0.02*dropoffs['low_inc_1p'] + 0.00000454*dropoffs['hi_inc_1p']
 dropoffs['am_pred_dropoffs'] = 616*dropoffs['airport'] + 0.04*dropoffs['food_emp'] + 0.02*dropoffs['retail_emp'] + 0.001*dropoffs['other_emp'] + 0.29*dropoffs['hi_inc_0'] + 0.0000102*dropoffs['hi_inc_1p']
 dropoffs['md_pred_dropoffs'] = 1501*dropoffs['airport'] + 77*dropoffs['tourist'] + 0.20*dropoffs['food_emp'] + 0.08*dropoffs['retail_emp'] + 0.01*dropoffs['other_emp'] + 0.51*dropoffs['hi_inc_0'] + 0.01*dropoffs['low_inc_0'] + 0.01*dropoffs['low_inc_1p'] + 0.0000313*dropoffs['hi_inc_1p']
@@ -47,41 +55,15 @@ logsum.head()
 ### Merge utility and dropoffs data together
 print("Merge utility and dropoffs data together...")
 df = pd.merge(logsum, dropoffs, on = "geoid_dest")
-df['tourist'] = 0
-# airport_list = [21067004207, # Lexington, KY
-#                     21015980100, # Northern Kentucky, KY (Cincinnati, OH's airport is in Kentucky)
-#                     21111980100, # Louisville, KY
-#                     1073000400, # Birmingham, AL
-#                     1101005901, # Montgomery, AL
-#                     1089011200, # Huntsville, AL
-#                     1097006403, # Mobile, AL
-#                     12127092500, # Daytona Beach, FL
-#                     12011080200, # Ft. Lauderdale, FL
-#                     12071980000, # Fort Myers, FL
-#                     12091021200, # Fort Walton Beach, FL
-#                     12001001902, # Gainesville, FL
-#                     12031010301, # Jacksonville, FL
-#                     12087972000, # Key West, FL
-#                     12009064700, # Melbourne, FL
-#                     12086980500, # Miami, FL
-#                     12095016802, # Orlando, FL
-#                     12005000201, # Panama City Beach, FL
-#                     12033001101, # Pensacola, FL
-#                     12015010501, # Punta Gorda, FL
-#                     12117021000, # Orlando-Sanford, FL
-#                     12115001000, # Sarasota, FL
-#                     12103024509, # St. Petersburg-Clearwater, FL
-#                     12073002701, # Tallahasee, FL
-#                     12057980600, # Tampa, FL
-#                     12099980500] # West Palm Beach, FL
-# df['airport'] = np.where(df.geoid_dest.isin([airport_list]), 1, 0)
-airport_coeffs = pd.read_csv("airports_coeff.csv")
-airport_coeffs = airport_coeffs[["geoid", "coeff"]]
-airport_coeffs = airport_coeffs.rename(columns={'coeff': 'airport'})
-airport_coeffs = airport_coeffs.rename(columns={'geoid': 'geoid_dest'})
-df = df.drop('airport', axis=1)
-df = pd.merge(df, airport_coeffs, on='geoid_dest', how='left')
-df['airport'].fillna(0, inplace=True)
+
+### Add airport data
+# airport_coeffs = pd.read_csv("airports_coeff.csv")
+# airport_coeffs = airport_coeffs[["geoid", "coeff"]]
+# airport_coeffs = airport_coeffs.rename(columns={'coeff': 'airport'})
+# airport_coeffs = airport_coeffs.rename(columns={'geoid': 'geoid_dest'})
+# df = df.drop('airport', axis=1)
+# df = pd.merge(df, airport_coeffs, on='geoid_dest', how='left')
+# df['airport'].fillna(0, inplace=True)
 # acs_lehd['airport'] = np.where(acs_lehd.geoid.isin(airport_list), 1, 0)
 df['internal'] = np.where(df['geoid_origin'] == df['geoid_dest'], 1, 0)
 
@@ -99,20 +81,49 @@ print("Calculating exponentiated utility by TOD...")
 time_of_day = ['nt', 'am', 'md', 'pm', 'ev']
 for time in time_of_day:
     df[time + '_exp_utility'] = df[time + '_utility'].apply(np.exp)
+    
+### Sum exp utils across all possible destinations, within each TOD, then take the log
+## Get exp utilities
+df_exp_utility = df[["geoid_origin", "nt_exp_utility", "am_exp_utility", "md_exp_utility", "pm_exp_utility", "ev_exp_utility"]]
+df_exp_utility.head() 
 
-### Sums of utilities by TOD and logsums
-print("Get sums of utilities by TOD and logsums")
-df["exp_utility_sum"] =  df["nt_exp_utility"] + df["am_exp_utility"] + df["md_exp_utility"] + df["pm_exp_utility"] + df["ev_exp_utility"]
-df["dest_choice_logsum"] = np.log(df["exp_utility_sum"])
+df_sum_exp_utility = df_exp_utility.groupby(['geoid_origin']).sum()
+df_sum_exp_utility.head()
+## String to check for
+string_to_check = 'exp_utility'
+
+## Iterate through columns and add prefix if the string is found
+for col in df_sum_exp_utility.columns:
+    if string_to_check in col:
+        df_sum_exp_utility.rename(columns={col: 'sum_' + col}, inplace=True)
+
+for time in time_of_day:
+    df_sum_exp_utility[time + '_dc_logsum'] = np.log(df_sum_exp_utility['sum_' + time + '_exp_utility'])
+
+df_sum_exp_utility = df_sum_exp_utility.reset_index()
+df_sum_exp_utility
+# write out a dataframe with just the dc logsums and one row for each origin
+print("Writing to CSV...")
+df_dc_logsums = df_sum_exp_utility[['geoid_origin', 'nt_dc_logsum', 'am_dc_logsum', 'md_dc_logsum', 'pm_dc_logsum', 'ev_dc_logsum']]
+df_dc_logsums.to_csv('../outputs/' + study_state + '_dest_choice_logsum_' + scenario_name + '.csv', index = False)
 
 ### Get probabilities
 print("Calculating probabilities...")
+## Merge the sum of exp utils back to the matrix (these are the row sums) via the origin
+# Calcuclate prob as exp_util / rowsum
+df = pd.merge(df, df_sum_exp_utility, on = "geoid_origin", how = "left")
+
 for time in time_of_day:
-    df[time + "_prob"] = df[time + "_exp_utility"] / df["exp_utility_sum"]       
-df["prob_sum"] =  df["nt_prob"] + df["am_prob"] + df["md_prob"] + df["pm_prob"] + df["ev_prob"]
+    df[time + "_prob"] = df[time + "_exp_utility"] / df['sum_' + time + '_exp_utility']      
+
+# df_prob = df[["geoid_origin", 'nt_prob', 'am_prob', 'md_prob', 'pm_prob', 'ev_prob']]
+# check that they sum to 1
+#df_prob.groupby(['geoid_origin']).sum()
 
 ### Write to CSV
 print("Writing to CSV...")
-dest_choice = df[['geoid_origin', 'geoid_dest', 'dest_choice_logsum', 'nt_prob', 'am_prob', 'md_prob', 'pm_prob', 'ev_prob', 'airport', 'tourist', 'median_age', 'pct_bach_25p', 'total_emp_den']]
-dest_choice.to_csv('../outputs/' + study_state + '_dest_choice_prob_logsum_' + scenario_name + '.csv', index = False)
+dest_choice_prob = df[['geoid_origin', 'geoid_dest', 
+                  'nt_prob', 'am_prob', 'md_prob', 'pm_prob', 'ev_prob', 
+                  'airport', 'tourist', 'median_age', 'pct_bach_25p', 'total_emp_den']]
+dest_choice_prob.to_csv('../outputs/' + study_state + '_dest_choice_prob_' + scenario_name + '.csv', index = False)
 

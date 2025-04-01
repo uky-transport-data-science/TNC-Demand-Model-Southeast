@@ -87,36 +87,6 @@ def get_median_income(study_state):
 
 # Read in data
 utility = pd.read_csv('../outputs/' + study_state + '_fares_and_times_' + scenario_name + '.csv')
-#utility = priv_shared_fares.priv_shared_fares()
-# Create indicator to see if an airport is in the origin or destination.
-# airport_list = [21067004207, # Lexington, KY
-#                     21015980100, # Northern Kentucky, KY (Cincinnati, OH's airport is in Kentucky)
-#                     21111980100, # Louisville, KY
-#                     1073000400, # Birmingham, AL
-#                     1101005901, # Montgomery, AL
-#                     1089011200, # Huntsville, AL
-#                     1097006403, # Mobile, AL
-#                     12127092500, # Daytona Beach, FL
-#                     12011080200, # Ft. Lauderdale, FL
-#                     12071980000, # Fort Myers, FL
-#                     12091021200, # Fort Walton Beach, FL
-#                     12001001902, # Gainesville, FL
-#                     12031010301, # Jacksonville, FL
-#                     12087972000, # Key West, FL
-#                     12009064700, # Melbourne, FL
-#                     12086980500, # Miami, FL
-#                     12095016802, # Orlando, FL
-#                     12005000201, # Panama City Beach, FL
-#                     12033001101, # Pensacola, FL
-#                     12015010501, # Punta Gorda, FL
-#                     12117021000, # Orlando-Sanford, FL
-#                     12115001000, # Sarasota, FL
-#                     12103024509, # St. Petersburg-Clearwater, FL
-#                     12073002701, # Tallahasee, FL
-#                     12057980600, # Tampa, FL
-#                     12099980500] # West Palm Beach, FL
-# utility.loc[:, 'airport'] = np.where(utility['geoid_origin'].isin(airport_list), 1, np.where(utility['geoid_dest'].isin(airport_list), 1, 0))
-
 airport_coeffs = pd.read_csv("airports_coeff.csv")
 airport_coeffs.columns
 airport_coeffs = airport_coeffs[["geoid", "coeff"]]

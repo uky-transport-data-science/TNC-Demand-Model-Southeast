@@ -27,6 +27,8 @@ study_state = model_config["study_state"]
 scenario_name = model_config["scenario_name"]
 fare_adjust = model_config["fare_adjust"]
 census_key = model_config["census_key"]
+keep_intermediate = model_config["keep_intermediate"]
+use_scaling_factor = model_config["scaling_factor"]
 
 # Activate Census Key
 c = Census(census_key)
@@ -110,9 +112,8 @@ def get_household_density(study_state):
 # Read in Data
 print("Reading in negative binomial trip data..")
 trips = pd.read_csv('../outputs/' + study_state + '_neg_bin_pred_trips_' + scenario_name + '.csv')
-trips.columns
-#sdf_check = trips[trips['geoid_origin'] == 21111980100]
-#sdf_check.to_csv("../outputs/sdf_check.csv", index = False)
+#trips = trips.rename(columns={'geoid_origin': 'geoid'})
+
 print("Reading in travel time data..")
 traveltime = pd.read_csv('../outputs/' + study_state + '_fares_and_times_' + scenario_name + '.csv')
 traveltime = traveltime[['geoid_origin', 'geoid_dest', 'private_travel_time', 'private_fares', 'shared_travel_time', 'shared_fares']]
@@ -128,14 +129,14 @@ origin_median_inc['geoid_origin'] = origin_median_inc.geoid_origin.astype(float)
 dest_median_inc = median_inc[["geoid_dest", "median_income_dest"]]
 dest_median_inc['geoid_dest'] = dest_median_inc.geoid_dest.astype(float)
 
-trips = trips.merge(origin_median_inc, on = "geoid_origin")
-trips = trips.merge(dest_median_inc, on = "geoid_dest")
+trips = trips.merge(origin_median_inc, left_on='geoid_origin', right_on='geoid_origin')
+trips = trips.merge(dest_median_inc, left_on='geoid_dest', right_on='geoid_dest')
 
 # Merge trips and travel time
 print("Merging trips and travel time data...")
-trips = pd.merge(trips, traveltime, how = "left", on = ["geoid_origin", "geoid_dest"])
+trips = trips.merge(traveltime, how = "left", on = ["geoid_origin", "geoid_dest"])
 
-# Airport indicator
+# Add airport data
 airport_coeffs = pd.read_csv("airports_coeff.csv")
 airport_coeffs = airport_coeffs[["geoid", "coeff"]]
 airport_coeffs = airport_coeffs.rename(columns={'coeff': 'airport_origin'})
@@ -150,6 +151,7 @@ trips['airport_origin'].fillna(0, inplace=True)
 trips['airport_dest'].fillna(0, inplace=True)
 trips["airport"] = trips[['airport_origin', 'airport_dest']].max(axis=1)
 
+
 # Use logit model to get probability
 print("Applying logit model to get private/shared trips...")
 shared_exp_utility =  np.exp(-0.85 - 0.08*trips['shared_travel_time'] - 0.14*trips['shared_fares'] - 0.06*trips['median_income_origin'] - 0.06*trips['median_income_dest'] - 2.88*trips['airport'])
@@ -159,13 +161,13 @@ trips['private_prob'] = 1 - trips[['shared_prob']]
 
 # Get private and shared trips
 priv_shared_trips = trips[['geoid_origin', 'geoid_dest', 'nt_trips', 'am_trips', 'md_trips', 'pm_trips', 'ev_trips', 'shared_prob', 'private_prob',"private_travel_time", "shared_travel_time", "private_fares", "shared_fares"]]
+
 time_of_day = ["nt", "am", "md", "pm", "ev"]
 mode_choices = ['private', 'shared']
 for time in time_of_day:
     for mode in mode_choices:
         priv_shared_trips[mode + '_' + time + "_trips"] = priv_shared_trips[time + '_trips'] * priv_shared_trips[mode + '_prob']
 print("Calculating private/shared trips by TOD...")
-
 priv_shared_trips['shared_trips_total'] = priv_shared_trips['shared_nt_trips'] + priv_shared_trips['shared_nt_trips'] + priv_shared_trips['shared_am_trips'] + priv_shared_trips['shared_md_trips'] + priv_shared_trips['shared_pm_trips'] + priv_shared_trips['shared_ev_trips']
 
 # Reading in data for matched/unmatched trips.
@@ -238,15 +240,22 @@ trips_long.to_csv("../outputs/" + study_state + "_trips_final_long_" + scenario_
 ## Delete files
 print("Deleting intermediate files...")
 os.chdir('/mnt/e/CR2/Repos/TNC-Demand-Model-Southeast/outputs/')
-patterns = ['*neg_bin*', '*dest_choice*', '*logsums*', '*linear*', '*matched_trips*']
-files = [f for pattern in patterns for f in glob.glob(pattern)]
-dir_path = os.getcwd()
-
-# Iterate over the files and delete them
-for file_name in files:
-    file_path = os.path.join(dir_path, file_name)
-    os.remove(file_path)
+if keep_intermediate == "False":
+    patterns = ['*' + study_state + '_neg_bin*', '*' + study_state + '_dest_choice*', '*' + study_state + '_logsums*', '*' + study_state + '_linear*',  '*' + study_state + '_matched_trips*',  '*' + study_state + '_acs_lehd*']
+    files = [f for pattern in patterns for f in glob.glob(pattern)]
+    dir_path = os.getcwd()
+    # Iterate over the files and delete them
+    for file_name in files:
+        file_path = os.path.join(dir_path, file_name)
+        os.remove(file_path)
+else:
+    pass
 
 print("All finished!")
+
+if use_scaling_factor == "True":
+    print("Scaling factor was applied in this run.")
+else:
+    print("Scaling factor was NOT applied in this run.")
 
 
