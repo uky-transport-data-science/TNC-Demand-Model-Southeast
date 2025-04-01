@@ -4,6 +4,6 @@
    "scenario_name": "baseline",
    "census_key" : "4049ee84e96e784c0042da45d81f95514d53b7fd",
    "ctpp_key": "b4p87z65rxttu2zehirjbgio",
-   "keep_intermediate": "True"
+   "keep_intermediate": "True",
    "scaling_factor": "False"
   }
