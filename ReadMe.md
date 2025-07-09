@@ -24,3 +24,6 @@ In a terminal, change your directory to where you put the model. Type in `wsl` t
 2. Open `run_tncse.sh`. Edit the second line to change directories to the **inputs** folder.
 3. In the terminal, activate your virtual environment.
 4. Type in `bash run_tncse.sh` and hit enter. The first time you run for a state, it's going to take 3-4 hours to do the routing. But once you run another scenario for the same state, it should take about 15-20 minutes for the model to run.
+
+## Other Things to be Aware Of
+1. TIGER Line files that are being pulled in the code may run into permissions issues. To remedy this, download the TIGER Line file from https://www2.census.gov/geo/tiger/TIGER2019/TRACT/ for each relevant state. Make sure to change the .json file parameter to local as well.
