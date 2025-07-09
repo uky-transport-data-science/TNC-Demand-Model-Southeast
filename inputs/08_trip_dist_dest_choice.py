@@ -33,6 +33,15 @@ print("Getting linear predicted dropoffs by TOD...")
 #dropoffs = acs_lehd.get_acs_lehd(study_state)
 dropoffs =  pd.read_csv("../outputs/" + study_state + "_acs_lehd_" + scenario_name + ".csv")
 
+# Get city of Chicago
+dropoffs.head()
+if study_state == 'IL':
+   chicago_tracts = pd.read_csv("../comparison/from_dropbox_md.csv")
+   chicago_tracts = chicago_tracts["ORIGIN"].unique()
+   dropoffs = dropoffs[dropoffs['geoid'].isin(chicago_tracts)]
+else:
+    pass
+
 for col in dropoffs.select_dtypes(include=['object']).columns:
     try:
         dropoffs[col] = pd.to_numeric(dropoffs[col], errors='coerce')
@@ -49,6 +58,14 @@ dropoffs = dropoffs.rename(columns={"geoid": "geoid_dest"})
 # Read in utitlity/probability/logsum data
 print("Reading in utility/probability/logsum data...")
 logsum = pd.read_csv('../outputs/' + study_state + '_mode_choice_utility_logsums_' + scenario_name + '.csv')
+# City of Chicago Only
+if study_state == 'IL':
+   chicago_tracts = pd.read_csv("../comparison/from_dropbox_md.csv")
+   chicago_tracts = chicago_tracts["ORIGIN"].unique()
+   logsum = logsum[logsum['geoid_origin'].isin(chicago_tracts) & logsum['geoid_dest'].isin(chicago_tracts)]
+else:
+    pass
+
 logsum = logsum[['geoid_origin', 'geoid_dest', 'travel_distance', 'mode_logsum_airport', 'mode_logsum_no_airport']]
 logsum.head()
 
@@ -56,15 +73,7 @@ logsum.head()
 print("Merge utility and dropoffs data together...")
 df = pd.merge(logsum, dropoffs, on = "geoid_dest")
 
-### Add airport data
-# airport_coeffs = pd.read_csv("airports_coeff.csv")
-# airport_coeffs = airport_coeffs[["geoid", "coeff"]]
-# airport_coeffs = airport_coeffs.rename(columns={'coeff': 'airport'})
-# airport_coeffs = airport_coeffs.rename(columns={'geoid': 'geoid_dest'})
-# df = df.drop('airport', axis=1)
-# df = pd.merge(df, airport_coeffs, on='geoid_dest', how='left')
-# df['airport'].fillna(0, inplace=True)
-# acs_lehd['airport'] = np.where(acs_lehd.geoid.isin(airport_list), 1, 0)
+### Add internal data
 df['internal'] = np.where(df['geoid_origin'] == df['geoid_dest'], 1, 0)
 
 ### Destination Choice Utility

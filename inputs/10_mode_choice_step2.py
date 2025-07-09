@@ -29,6 +29,7 @@ fare_adjust = model_config["fare_adjust"]
 census_key = model_config["census_key"]
 keep_intermediate = model_config["keep_intermediate"]
 use_scaling_factor = model_config["scaling_factor"]
+tiger_location = model_config["tiger_location"]
 
 # Activate Census Key
 c = Census(census_key)
@@ -83,15 +84,16 @@ def get_household_density(study_state):
 
     # Get tract area data
     print("Getting geography data from TIGER line files...")
-    tract_load = []
-    for i in states_list:
-        url = 'https://www2.census.gov/geo/tiger/TIGER2019/TRACT/tl_2019_' + i + '_tract.zip'
-        df = gpd.read_file(url)
-        df = df[['GEOID', 'STATEFP', 'ALAND']]
-        tract_load.append(df)
-
-    tract_load = pd.concat(tract_load)
-    tract_load = tract_load.reset_index()
+    if tiger_location == "Web":
+        tract_load = []
+        for i in states_list:
+            url = 'https://www2.census.gov/geo/tiger/TIGER2019/TRACT/tl_2019_' + i + '_tract.zip'
+            df = gpd.read_file(url)[['GEOID', 'ALAND', 'STATEFP']]
+            tract_load.append(df)
+        tract_load = pd.concat(tract_load)
+        tract_load = tract_load.reset_index()
+    else:
+        tract_load = gpd.read_file("tl_2019_" + fips_dict[study_state] + "_tract.zip")
     tract_load = fips_df.merge(tract_load, left_on = "fips_code", right_on = "STATEFP")
     tract_load = tract_load[tract_load["state_abb"] == study_state]
     tract = tract_load[["GEOID","ALAND"]]
@@ -99,7 +101,7 @@ def get_household_density(study_state):
     tract["geoid"] = tract.geoid.astype(float)
 
     households = pd.merge(tract, households, how="left", on = "geoid")
-    households.loc[:, "density"] = households.loc[:, "households"] / (households.loc[:, "aland"] / 4046.85)
+    households.loc[:, "density"] = (households.loc[:, "households"]/1000) / (households.loc[:, "aland"] / 0.000247105)
     households = households[["geoid", "density"]]
     households['origin_hh_density'] = households['density']
     households['dest_hh_density'] = households['density']
@@ -175,9 +177,7 @@ print("Merging household density data and creating matched/unmatched trips...")
 origin_hh_density, dest_hh_density = get_household_density(study_state)
 matched_trips = pd.merge(priv_shared_trips, origin_hh_density, left_on = ["geoid_origin"], right_on = ["geoid"])
 matched_trips = pd.merge(matched_trips, dest_hh_density, left_on = ["geoid_dest"], right_on = ["geoid"])
-# matched_trips = matched_trips.drop(["dest_hh_density_y"], axis = 1)
-# matched_trips = matched_trips.rename({'dest_hh_density_x': 'dest_hh_density'}, axis='columns')
-match_exp_u = np.exp(-1.45 + 0.148*matched_trips["shared_travel_time"] + 0.323*matched_trips["shared_trips_total"] + 0.012*matched_trips['origin_hh_density'] + 0.016*matched_trips["dest_hh_density"])
+match_exp_u = np.exp(-0.361 + 0.148*matched_trips["shared_travel_time"] + 0.323*matched_trips["shared_trips_total"] + 0.012*matched_trips['origin_hh_density'] + 0.016*matched_trips["dest_hh_density"])
 matched_trips["matched_prob"] = match_exp_u / (1 + match_exp_u)
 matched_trips["unmatched_prob"] = 1 - matched_trips["matched_prob"]
 time_of_day = ["nt", "am", "md", "pm", "ev"]
@@ -241,7 +241,7 @@ trips_long.to_csv("../outputs/" + study_state + "_trips_final_long_" + scenario_
 print("Deleting intermediate files...")
 os.chdir('/mnt/e/CR2/Repos/TNC-Demand-Model-Southeast/outputs/')
 if keep_intermediate == "False":
-    patterns = ['*' + study_state + '_neg_bin*', '*' + study_state + '_dest_choice*', '*' + study_state + '_logsums*', '*' + study_state + '_linear*',  '*' + study_state + '_matched_trips*',  '*' + study_state + '_acs_lehd*']
+    patterns = ['*' + study_state + '_dest_choice*', '*' + study_state + '_logsums*', '*' + study_state + '_linear*',  '*' + study_state + '_matched_trips*',  '*' + study_state + '_acs_lehd*', '*' + study_state + '_mode_choice*']
     files = [f for pattern in patterns for f in glob.glob(pattern)]
     dir_path = os.getcwd()
     # Iterate over the files and delete them

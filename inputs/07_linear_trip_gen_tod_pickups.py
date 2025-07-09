@@ -25,12 +25,15 @@ with open('../model_config.json') as f:
 study_state = model_config["study_state"]
 scenario_name = model_config["scenario_name"]
 fare_adjust = model_config["fare_adjust"]
-
+tiger_location = model_config["tiger_location"]
 
 # Get linear predicted pickups by TOD
 print("Get linear predicted pickups by TOD...")
 pickups = acs_lehd.get_acs_lehd(study_state)
-pickups =  pd.read_csv("../outputs/" + study_state + "_acs_lehd_" + scenario_name + ".csv")
+#pickups =  pd.read_csv("../outputs/" + study_state + "_acs_lehd_" + scenario_name + ".csv")
+
+# Get city of Chicago
+
 
 for col in pickups.select_dtypes(include=['object']).columns:
     try:
@@ -38,6 +41,7 @@ for col in pickups.select_dtypes(include=['object']).columns:
     except ValueError:
         print(f"Could not convert column '{col}' to float.")
 
+pickups[pickups['airport'] > 0]
 ### Adjusting airport pickups by e^(coefficient for airport in negative binomial for pickups, lines 40-44 in 09).
 ## Update 2/17: updating coefficients to account for rounding. https://github.com/alex-mucci/TNC-Demand-Model-Application/blob/main/Apply_Trip_Generation.py
 pickups['nt_linear_pickups'] = 260.4035*pickups['airport'] +  0.1251485*pickups['food_emp'] + 0.1456829*pickups['hi_inc_0'] +  0.0055992*pickups['low_inc_0'] + 0.0206288*pickups['low_inc_1p']

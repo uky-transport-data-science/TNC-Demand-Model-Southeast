@@ -2,7 +2,6 @@
 # Set working directory
 import os
 os.getcwd()
-
 # Import libraries
 import warnings
 warnings.simplefilter(action='ignore')
@@ -15,6 +14,7 @@ import requests
 import fiona
 import geopandas as gpd
 import json
+pd.set_option('display.max_columns', None)
 
 ## Read JSON file
 with open('../model_config.json') as f: 
@@ -26,6 +26,7 @@ scenario_name = model_config["scenario_name"]
 fare_adjust = model_config["fare_adjust"]
 census_key = model_config["census_key"]
 ctpp_key = model_config["ctpp_key"]
+tiger_location = model_config["tiger_location"]
 
 # Activate Census Key
 c = Census(census_key)
@@ -75,6 +76,7 @@ def get_acs_lehd(study_state):
                                         tract = "*",
                                         year = 2019))
     dp05_load.head()
+
     ## Clean Data
     ### Split name column
     dp05_load[['tract_name', 'county_name', 'state_name']] = dp05_load.NAME.str.split(',', expand=True)
@@ -143,6 +145,10 @@ def get_acs_lehd(study_state):
     ## Filter for state 
     s1501 = s1501[s1501['state_abb'].isin([study_state])]
     s1501 = s1501[['geoid', 'pct_bach_25p']]
+    ## Replace NA with median
+    s1501[s1501['pct_bach_25p'].isna()]
+    s1501_median = s1501[s1501["pct_bach_25p"] >= 0].median()[1]
+    s1501 = s1501.fillna(s1501_median)
     print(s1501.shape)
 
     # Get number of vehicles by household income
@@ -271,14 +277,17 @@ def get_acs_lehd(study_state):
 
     ## Load Land Area Data from TIGER Line Census Files
     print("Getting land area data from TIGER line files...")
-    land_area_load = []
-    for i in states_list:
-        url = 'https://www2.census.gov/geo/tiger/TIGER2019/TRACT/tl_2019_' + i + '_tract.zip'
-        df = gpd.read_file(url)[['GEOID', 'ALAND', 'STATEFP']]
-        land_area_load.append(df)
-
-    land_area_load = pd.concat(land_area_load)
-    land_area_load = land_area_load.reset_index()
+    if tiger_location == "Web":
+        land_area_load = []
+        for i in states_list:
+            url = 'https://www2.census.gov/geo/tiger/TIGER2019/TRACT/tl_2019_' + i + '_tract.zip'
+            df = gpd.read_file(url)[['GEOID', 'ALAND', 'STATEFP']]
+            land_area_load.append(df)
+        land_area_load = pd.concat(land_area_load)
+        land_area_load = land_area_load.reset_index()
+    else:
+        land_area_load = gpd.read_file("tl_2019_" + fips_dict[study_state] + "_tract.zip")
+   
     ### Merge FIPS dataframe with dp05
     land_area  = pd.merge(land_area_load, fips_df, left_on = 'STATEFP', right_on = 'fips_code')
     ### Get land area in miles
@@ -304,19 +313,19 @@ def get_acs_lehd(study_state):
     acs_lehd.shape
 
     # Flag for Tourists
-    tourist_list = [17031081402,17031330100,17031841000]
-    if study_state == "IL":
-        acs_lehd['tourist'] = np.where(acs_lehd.geoid.isin(tourist_list), 1, 0)
-    else:
-        acs_lehd['tourist'] = 0
+    print("Include tourism for this run.")
+    tourist_list = [17031081402, 17031330100, 17031841000, 25025070101, 25025981700, 25025030100, 25009204500]
+    acs_lehd['tourist'] = np.where(acs_lehd.geoid.isin(tourist_list), 1, 0)
+    #acs_lehd['tourist'] = 0
     
     airport_coeffs = pd.read_csv("airports_coeff.csv")
     airport_coeffs = airport_coeffs[["geoid", "coeff"]]
     airport_coeffs = airport_coeffs.rename(columns={'coeff': 'airport'})
     acs_lehd = pd.merge(acs_lehd, airport_coeffs, on='geoid', how='left')
+    print(acs_lehd[acs_lehd['airport'] > 0])
     acs_lehd['airport'].fillna(0, inplace=True)
     # acs_lehd['airport'] = np.where(acs_lehd.geoid.isin(airport_list), 1, 0)
-    acs_lehd = acs_lehd.fillna(acs_lehd.median)
     print("Cleaning acs_lehd combined dataframe...")
     acs_lehd.to_csv("../outputs/" + study_state + "_acs_lehd_" + scenario_name + ".csv", index = False)
     return acs_lehd
+

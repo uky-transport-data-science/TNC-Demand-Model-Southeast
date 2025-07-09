@@ -1,42 +1,44 @@
-"geoid","airport","state","iata_code","hub","coeff"
-"21067004207 ","Lexington, KY","KY","LEX","S",0.3
-"21015980100 ","Northern Kentucky, KY","KY","CVG","M",0.65
-"21111980100 ","Louisville, KY","KY","SDF","S",0.3
-"1073000400 ","Birmingham, AL","AL","BHM","S",0.3
-"1101005901 ","Montgomery, AL","AL","MGM","N",0.15
-"1045021400","Dothan, AL","AL","DHN","N",0.15
-"1089011200 ","Huntsville, AL","AL","HSV","S",0.3
-"1097006403 ","Mobile, AL","AL","MOB","N",0.15
-"12127092500 ","Daytona Beach, FL","FL","DAB","N",0.15
-"12011080200 ","Ft. Lauderdale, FL","FL","FLL","L",1
-"12071980000 ","Fort Myers, FL","FL","RSW","M",0.65
-"12091021200 ","Fort Walton Beach, FL","FL","VPS","S",0.3
-"12001001902 ","Gainesville, FL","FL","GNV","N",0.15
-"12031010301 ","Jacksonville, FL","FL","JAX","M",0.65
-"12087972000 ","Key West, FL","FL","EYW","S",0.3
-"12009064700 ","Melbourne, FL","FL","MLB","N",0.15
-"12086980500 ","Miami, FL","FL","MIA","L",1
-"12095016802 ","Orlando, FL","FL","MCO","L",1
-"12005000201 ","Panama City Beach, FL","FL","ECP","S",0.3
-"12033001101 ","Pensacola, FL","FL","PNS","S",0.3
-"12015010501 ","Punta Gorda, FL","FL","PGD","S",0.3
-"12117021000 ","Orlando-Sanford, FL","FL","SFB","S",0.3
-"12115001000 ","Sarasota, FL","FL","SRQ","S",0.3
-"12103024509 ","St. Petersburg-Clearwater, FL","FL","PIE","S",0.3
-"12073002701 ","Tallahasee, FL","FL","TLH","N",0.15
-"12057980600 ","Tampa, FL","FL","TPA","L",1
-"12099980500","West Palm Beach, FL","FL","PBI","M",0.65
-"25025981300","Boston, MA","MA","BOS","L",1
-"25001015300","Hyannis, MA","MA","HYA","N",0.15
-"25019950400","Nantucket, MA","MA","ACK","N",0.15
-"25007200400","Martha's Vineyard, MA","MA","MVY","N",0.15
-"25027730700","Worcester, MA","MA","ORH","N",0.15
-"25005650201","New Bedford, MA","MA","EWB","None",0.05
-"25001010100","Provincetown, MA","MA","PVC","N",0.15
-"28087000403","Columbus, MS","MS","GTR","N",0.15
-"28047980000","Gulfport-Biloxi, MS","MS","GPT","N",0.15
-"28067980000","Hattiesburg-Laurel, MS","MS","PIB","N",0.15
-"28121980000","Jackson, MS","MS","JAN","S",0.3
-"28075980000","Meridian, MS","MS","MEI","N",0.15
-"28081980000","Tupelo, MS","MS","TUP","N",0.15
-"28151000200","Greenville, MS","MS","GLH","None",0.05
+geoid,airport,state,iata_code,hub,coeff
+21067004207,"Lexington, KY",KY,LEX,S,0.025
+21015980100,"Northern Kentucky, KY",KY,CVG,M,0.2
+21111980100,"Louisville, KY",KY,SDF,S,0.025
+1073000400,"Birmingham, AL",AL,BHM,S,0.05
+1101005901,"Montgomery, AL",AL,MGM,N,0.0125
+1045021400,"Dothan, AL",AL,DHN,N,0.0125
+1089011200,"Huntsville, AL",AL,HSV,S,0.05
+1097006403,"Mobile, AL",AL,MOB,N,0.0125
+12127092500,"Daytona Beach, FL",FL,DAB,N,0.0125
+12011080200,"Ft. Lauderdale, FL",FL,FLL,L,1
+12071980000,"Fort Myers, FL",FL,RSW,M,0.2
+12091021200,"Fort Walton Beach, FL",FL,VPS,S,0.05
+12001001902,"Gainesville, FL",FL,GNV,N,0.0125
+12031010301,"Jacksonville, FL",FL,JAX,M,0.2
+12087972000,"Key West, FL",FL,EYW,S,0.05
+12009064700,"Melbourne, FL",FL,MLB,N,0.0125
+12086980500,"Miami, FL",FL,MIA,L,1
+12095016802,"Orlando, FL",FL,MCO,L,1
+12005000201,"Panama City Beach, FL",FL,ECP,S,0.05
+12033001101,"Pensacola, FL",FL,PNS,S,0.05
+12015010501,"Punta Gorda, FL",FL,PGD,S,0.05
+12117021000,"Orlando-Sanford, FL",FL,SFB,S,0.05
+12115001000,"Sarasota, FL",FL,SRQ,S,0.05
+12103024509,"St. Petersburg-Clearwater, FL",FL,PIE,S,0.05
+12073002701,"Tallahasee, FL",FL,TLH,N,0.0125
+12057980600,"Tampa, FL",FL,TPA,L,1
+12099980500,"West Palm Beach, FL",FL,PBI,M,0.2
+25025981300,"Boston, MA",MA,BOS,L,1
+25001015300,"Hyannis, MA",MA,HYA,N,0.0125
+25019950400,"Nantucket, MA",MA,ACK,N,0.0125
+25007200400,"Martha's Vineyard, MA",MA,MVY,N,0.0125
+25027730700,"Worcester, MA",MA,ORH,N,0.0125
+25005650201,"New Bedford, MA",MA,EWB,None,0
+25001010100,"Provincetown, MA",MA,PVC,N,0.0125
+28087000403,"Columbus, MS",MS,GTR,N,0.0125
+28047980000,"Gulfport-Biloxi, MS",MS,GPT,N,0.0125
+28067980000,"Hattiesburg-Laurel, MS",MS,PIB,N,0.0125
+28121980000,"Jackson, MS",MS,JAN,S,0.05
+28075980000,"Meridian, MS",MS,MEI,N,0.0125
+28081980000,"Tupelo, MS",MS,TUP,N,0.0125
+28151000200,"Greenville, MS",MS,GLH,None,0
+17031980100,"Chicago, IL",IL,MDW,L,1
+17031980000,"Chicago, IL",IL,ORD,L,1
