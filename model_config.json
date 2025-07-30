@@ -1,9 +1,10 @@
   {
-   "study_state": "IL", 
+   "study_state": "MS", 
    "fare_adjust": 1, 
    "scenario_name": "baseline",
+   "tourism": "",
    "census_key" : "INSERT KEY HERE",
    "ctpp_key": "INSERT KEY HERE",
    "keep_intermediate": "False",
-   "tiger_location": "Local"
+   "tiger_location": "Web"
   }
