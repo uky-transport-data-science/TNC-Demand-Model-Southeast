@@ -313,10 +313,10 @@ def get_acs_lehd(study_state):
     acs_lehd.shape
 
     # Flag for Tourists
-    print("Include tourism for this run.")
-    tourist_list = [17031081402, 17031330100, 17031841000, 25025070101, 25025981700, 25025030100, 25009204500]
-    acs_lehd['tourist'] = np.where(acs_lehd.geoid.isin(tourist_list), 1, 0)
-    #acs_lehd['tourist'] = 0
+    #print("Include tourism for this run.")
+    #tourist_list = [17031081402, 17031330100, 17031841000, 25025070101, 25025981700, 25025030100, 25009204500]
+    #acs_lehd['tourist'] = np.where(acs_lehd.geoid.isin(tourist_list), 1, 0)
+    acs_lehd['tourist'] = 0
     
     airport_coeffs = pd.read_csv("airports_coeff.csv")
     airport_coeffs = airport_coeffs[["geoid", "coeff"]]

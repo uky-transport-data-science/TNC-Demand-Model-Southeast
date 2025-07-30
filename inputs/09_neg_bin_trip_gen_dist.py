@@ -25,7 +25,6 @@ with open('../model_config.json') as f:
 study_state = model_config["study_state"]
 scenario_name = model_config["scenario_name"]
 fare_adjust = model_config["fare_adjust"]
-use_scaling_factor = model_config["scaling_factor"]
 
 # Read in Data
 print("Reading in linear pickup and destination choice data...")
@@ -51,17 +50,6 @@ df['am_pickups'].sum()
 df['md_pickups'].sum()
 df['pm_pickups'].sum()
 df['ev_pickups'].sum()
-
-if use_scaling_factor == "True":
-    print("Applying scalar factor...")
-    scaling_factor = 0.7755538
-    df['nt_pickups'] = scaling_factor*df['nt_pickups']
-    df['am_pickups'] = scaling_factor*df['am_pickups']
-    df['md_pickups'] = scaling_factor*df['md_pickups']
-    df['pm_pickups'] = scaling_factor*df['pm_pickups']
-    df['ev_pickups'] = scaling_factor*df['ev_pickups']
-else:
-    pass
 
 # Apply probabilities
 neg_bin_pred_trips = dest_choice_prob.merge(df, how = "left", on = "geoid_origin")

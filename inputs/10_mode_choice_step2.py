@@ -28,7 +28,6 @@ scenario_name = model_config["scenario_name"]
 fare_adjust = model_config["fare_adjust"]
 census_key = model_config["census_key"]
 keep_intermediate = model_config["keep_intermediate"]
-use_scaling_factor = model_config["scaling_factor"]
 tiger_location = model_config["tiger_location"]
 
 # Activate Census Key
@@ -252,10 +251,5 @@ else:
     pass
 
 print("All finished!")
-
-if use_scaling_factor == "True":
-    print("Scaling factor was applied in this run.")
-else:
-    print("Scaling factor was NOT applied in this run.")
 
 
