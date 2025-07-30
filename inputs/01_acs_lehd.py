@@ -24,6 +24,7 @@ with open('../model_config.json') as f:
 study_state = model_config["study_state"]
 scenario_name = model_config["scenario_name"]
 fare_adjust = model_config["fare_adjust"]
+tourism = model_config["tourism"]
 census_key = model_config["census_key"]
 ctpp_key = model_config["ctpp_key"]
 tiger_location = model_config["tiger_location"]
@@ -208,7 +209,7 @@ def get_acs_lehd(study_state):
     veh_hh_inc["geoid"] = veh_hh_inc["geoid"].str.replace("C1100US", "")
     veh_hh_inc[["geoid"]] = veh_hh_inc[["geoid"]].apply(pd.to_numeric)
     if study_state == "IL":
-        veh_hh_inc = veh_hh_inc[veh_hh_inc['geoid'].between(17031000000, 17031999999)]
+        veh_hh_inc = veh_hh_inc[veh_hh_inc['geoid'].between(17031000000, 17031999999)] ## Cook County
     else:
         pass
     print(veh_hh_inc.shape)
@@ -313,10 +314,14 @@ def get_acs_lehd(study_state):
     acs_lehd.shape
 
     # Flag for Tourists
-    #print("Include tourism for this run.")
-    #tourist_list = [17031081402, 17031330100, 17031841000, 25025070101, 25025981700, 25025030100, 25009204500]
-    #acs_lehd['tourist'] = np.where(acs_lehd.geoid.isin(tourist_list), 1, 0)
-    acs_lehd['tourist'] = 0
+    if tourism != "":
+        print("Including tourism for this run.")
+        tourist_list = tourism.split(', ')
+        tourist_list = [int(x) for x in tourist_list]
+        acs_lehd['tourist'] = np.where(acs_lehd.geoid.isin(tourist_list), 1, 0)
+    else:
+        print("No tourist tracts in this run")
+        acs_lehd['tourist'] = 0
     
     airport_coeffs = pd.read_csv("airports_coeff.csv")
     airport_coeffs = airport_coeffs[["geoid", "coeff"]]

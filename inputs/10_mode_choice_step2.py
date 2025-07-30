@@ -63,14 +63,7 @@ fips_df = pd.DataFrame(fips_dict.items(), columns=['state_abb', 'fips_code'])
 
 def get_household_density(study_state):
     print("Getting household density per Census tract (S1901)...")
-    if study_state == "IL":
-        s1901_load = pd.DataFrame(c.acs5st.state_county_tract(fields = ('NAME', 'S1901_C01_001E'),
-                                        state_fips = "17",
-                                        county_fips = "031",
-                                        tract = "*",
-                                        year = 2019))
-    else:
-        s1901_load = pd.DataFrame(c.acs5st.state_county_tract(fields = ('NAME', 'S1901_C01_001E'),
+    s1901_load = pd.DataFrame(c.acs5st.state_county_tract(fields = ('NAME', 'S1901_C01_001E'),
                                             state_fips = states_string,
                                             county_fips = "*",
                                             tract = "*",

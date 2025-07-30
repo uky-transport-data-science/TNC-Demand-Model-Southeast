@@ -66,10 +66,7 @@ def get_median_income(study_state):
     # Median Income by Census Tract
     ## Load Data
     print("Getting median income by Census tract (B19013)...")
-    if study_state == "IL":
-        b19013_load = pd.DataFrame(c.acs5.state_county_tract(fields = ('NAME', 'B19013_001E'), state_fips = fips_dict[study_state], county_fips = "031", tract = "*", year = 2019))
-    else:
-        b19013_load = pd.DataFrame(c.acs5.state_county_tract(fields = ('NAME', 'B19013_001E'), state_fips = fips_dict[study_state], county_fips = "*", tract = "*", year = 2019))
+    b19013_load = pd.DataFrame(c.acs5.state_county_tract(fields = ('NAME', 'B19013_001E'), state_fips = fips_dict[study_state], county_fips = "*", tract = "*", year = 2019))
     ## Create geoid_origin and geoid_dest columns
     b19013_load.loc[:, "geoid_origin"] = b19013_load['state'] + b19013_load['county'] + b19013_load['tract']
     b19013_load.loc[:, "geoid_dest"] = b19013_load['state'] + b19013_load['county'] + b19013_load['tract']
