@@ -2,7 +2,7 @@
    "study_state": "MS", 
    "fare_adjust": 1, 
    "scenario_name": "baseline",
-   "tourism": "",
+   "tourism": "Add tracts separated by commas, i.e. 31050404030, 31050404031, 31050404032, otherwise leave empty quotes (no spaces).",
    "census_key" : "INSERT KEY HERE",
    "ctpp_key": "INSERT KEY HERE",
    "keep_intermediate": "False",
